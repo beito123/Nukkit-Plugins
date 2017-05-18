@@ -1,0 +1,41 @@
+#SimpleOtu lang file(Japanese)
+
+version=1
+
+#Base #unused :P
+language.name=日本語
+
+#Command
+command.otu.description=指定したプレイヤーをotuします。
+command.runa.description=指定したプレイヤーをrunaします。
+command.otup.description=otuに使用する牢屋を設定します。
+command.otulist.description=otu又はrunaのリストを表示します。
+command.notEnoughParam=パラメーターが足りません。
+
+#Otu
+otu.add.sender={%0}さんをotuしました。
+otu.add.receiver=otuされました。
+otu.add.console={%0}によって{%1}がotuされました。
+otu.remove.sender={%0}さんのotuを解除しました。
+otu.remove.receiver=otuが解除されました。
+otu.remove.console={%0}によって{%1}のotuが解除されました。
+otu.player.nametag=[otu] {%0}
+otu.limit.command=コマンドは使用できません。
+
+#Runa
+runa.add.sender={%0}さんをrunaしました。
+runa.add.receiver=runaされました。
+runa.remove.sender={%0}さんのrunaを解除しました。
+runa.remove.receiver=runaが解除されました。
+runa.remove.console={%0}によって{%1}のrunaが解除されました。
+runa.player.nametag=[runa] {%0}
+
+#Otup
+otup.set=牢屋を設定しました。(x:{%0}, y:{%1}, z:{%2}, world:{%3})
+otup.notEnoughParam=座標を指定してください。
+otup.onlyNumber=数字で入力してください。
+otup.notFountTheWorld=指定されたワールドが見つかりません。
+
+#Otulist
+otulist.otu.top=----- otuリスト {%2}人 ({%0}/{%1}) -----
+otulist.runa.top=----- runaリスト {%2}人 ({%0}/{%1}) -----

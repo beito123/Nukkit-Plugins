@@ -1,0 +1,37 @@
+name: SimpleOtu
+version: 1.0.1
+author: beito
+api: ["1.0.0"]
+main: ru.bk.beito3.simpleotu.MainClass
+
+commands:
+  otu:
+    description: "Otu the specified player"
+    usage: "/otu <player>"
+    permission: otu.command.otu
+  runa:
+    description: "Runa the specified player"
+    usage: "/runa <player>"
+    permission: otu.command.runa
+  otup:
+    description: "Set the pos of the jail"
+    usage: "/otup [<x> <y> <z> [world]]"
+    permission: otu.command.otup
+  otulist:
+    description: "Show the list of otu."
+    usage: "/otulist [otu|runa] [page]"
+    permission: otu.command.otulist
+
+permissions:
+  otu:
+    children:
+      otu.command:
+        children:
+          otu.command.otu:
+            default: op
+          otu.command.runa:
+            default: op
+          otu.command.otup:
+            default: op
+          otu.command.otulist:
+            default: op
