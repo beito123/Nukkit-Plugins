@@ -1,12 +1,13 @@
-#Nukkit-Plugins
+# Nukkit-Plugins
 These plugins are made for the certain server.
 
 ##Build
 Run the following command to build plugins.
 
+
 	./gradlew build
 
-#License
+# License
 These plugins are the under GPLv3 license.
 
 	this program is free software: you can redistribute it and/or modify

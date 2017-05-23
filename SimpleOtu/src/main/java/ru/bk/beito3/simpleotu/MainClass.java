@@ -21,6 +21,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.ConfigSection;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,10 +31,14 @@ import java.lang.Math;
 
 public class MainClass extends PluginBase implements Listener {
 
+    private static int CUSTOM_MESSAGES_VERSION = 2;
+
     private Map<String, String> messages = new HashMap<>();
 
     private Position jailPos;
-    private boolean autoRelease = true;
+    private boolean autoRelease = false;
+    private boolean noticeAdd = false;
+    private boolean noticeRemove = false;
 
 
     private List<String> otuPlayers = new ArrayList<>();
@@ -108,25 +113,49 @@ public class MainClass extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
-        if (!this.getDataFolder().exists()) {
+        if(!this.getDataFolder().exists()) {
             this.getDataFolder().mkdirs();
         }
 
-        this.saveResource("messages.yml");
+        this.saveResource("messages.properties");
 
         //load config
-        Config config = new Config(new File(this.getDataFolder(), "config.yml"), Config.YAML,
-                new LinkedHashMap<String, Object>() {
-                    {
-                        put("jail-pos", "0,0,0,world");
-                        put("auto-release", true);
-                    }
-                });
+        Config config = new Config(new File(this.getDataFolder(), "config.yml"), Config.YAML);
+        config.setDefault(new ConfigSection(new LinkedHashMap<String, Object>() {
+            {
+                put("jail-pos", "0,0,0,world");
+                put("auto-release", true);
+                put("notice-add", true);
+                put("notice-remove", true);
+            }
+        }));
+
         this.jailPos = str2pos(config.getString("jail-pos"));
         this.autoRelease = config.getBoolean("auto-release", false);
+        this.noticeAdd = config.getBoolean("notice-add");
+        this.noticeRemove = config.getBoolean("notice-remove");
 
-        //load msg
-        Config msgList = new Config(new File(this.getDataFolder(), "messages.yml"), Config.PROPERTIES);
+        //load messages
+        Config msgList = new Config(new File(this.getDataFolder(), "messages.properties"), Config.PROPERTIES);
+
+        String version = msgList.getString("version");
+
+        if(version == null || Integer.parseInt(version) < CUSTOM_MESSAGES_VERSION) {
+            Config newConfig = new Config(Config.PROPERTIES);
+            if(!newConfig.load(this.getResource("messages.properties"))) {//failed
+                Server.getInstance().getLogger().error("Could not load the new config.");
+                Server.getInstance().getPluginManager().disablePlugin(this);
+                return;
+            }
+            
+            msgList.setDefault(newConfig.getRootSection());//fill
+
+            msgList.set("version", CUSTOM_MESSAGES_VERSION);
+
+            this.getLogger().notice("Updated messages.properties");
+        }
+        msgList.save();//save again
+
         for(Map.Entry<String, Object> entry : msgList.getAll().entrySet()) {
             if(entry.getValue() instanceof String) {
                 messages.put(entry.getKey(), (String) entry.getValue());
@@ -134,13 +163,14 @@ public class MainClass extends PluginBase implements Listener {
         }
 
         //load list
-        Config list = new Config(new File(this.getDataFolder(), "list.yml"), Config.YAML,
-                new LinkedHashMap<String, Object>() {
-                {
-                    put("otu", new ArrayList<String>());
-                    put("runa", new ArrayList<String>());
-                }
-            });
+        Config list = new Config(new File(this.getDataFolder(), "list.yml"), Config.YAML);
+        list.setDefault(new ConfigSection(new LinkedHashMap<String, Object>() {
+            {
+
+                put("otu", new ArrayList<String>());
+                put("runa", new ArrayList<String>());
+            }
+        }));
 
         //load list
         this.otuPlayers = list.getStringList("otu");
@@ -148,55 +178,56 @@ public class MainClass extends PluginBase implements Listener {
 
         //command
 
-        //otu
-        Command otuCommand = Server.getInstance().getCommandMap().getCommand("otu");
-        otuCommand.setDescription(this.getCustomMessage("command.otu.description"));//jpn
-        otuCommand.setCommandParameters(
-                new LinkedHashMap<String, CommandParameter[]>(){
-                {
-                    put("otu", new CommandParameter[]{
-                            new CommandParameter("player", CommandParameter.ARG_TYPE_TARGET, false)
-                    });
-                }
-            });
+        Map<String, String> cmdDes = new LinkedHashMap<String, String>(){{
+            put("otu", MainClass.this.getCustomMessage("command.otu.description"));
+            put("runa", MainClass.this.getCustomMessage("command.runa.description"));
+            put("otup", MainClass.this.getCustomMessage("command.otup.description"));
+            put("otulist", MainClass.this.getCustomMessage("command.otulist.description"));
+        }};
 
-        //runa
-        Command runaCommand = Server.getInstance().getCommandMap().getCommand("runa");
-        runaCommand.setDescription(this.getCustomMessage("command.runa.description"));//jpn
-        runaCommand.setCommandParameters(
-                new LinkedHashMap<String, CommandParameter[]>(){
+        Map<String, Map<String, CommandParameter[]>> cmdParams = new LinkedHashMap<String, Map<String, CommandParameter[]>>(){
+            {
+                put("otu", new LinkedHashMap<String, CommandParameter[]>(){
                     {
                         put("otu", new CommandParameter[]{
-                                new CommandParameter("player", CommandParameter.ARG_TYPE_TARGET, false)
+                            new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
                         });
                     }
                 });
-
-        //otup
-        Command otupCommand = Server.getInstance().getCommandMap().getCommand("otup");
-        otupCommand.setDescription(this.getCustomMessage("command.otup.description"));//jpn
-        otupCommand.setCommandParameters(
-                new LinkedHashMap<String, CommandParameter[]>(){
+                put("runa", new LinkedHashMap<String, CommandParameter[]>(){
                     {
-                        put("otu", new CommandParameter[]{
-                                new CommandParameter("pos", CommandParameter.ARG_TYPE_BLOCK_POS, true),
-                                new CommandParameter("world", CommandParameter.ARG_TYPE_STRING, true)
+                        put("runa", new CommandParameter[]{
+                            new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
                         });
                     }
                 });
-
-        //otulist
-        Command otulistCommand = Server.getInstance().getCommandMap().getCommand("otulist");
-        otulistCommand.setDescription(this.getCustomMessage("command.otulist.description"));//jpn
-        otulistCommand.setCommandParameters(
-                new LinkedHashMap<String, CommandParameter[]>(){
+                put("otup", new LinkedHashMap<String, CommandParameter[]>(){
                     {
-                        put("otu", new CommandParameter[]{
-                                new CommandParameter("otu(o)|runa(r)", CommandParameter.ARG_TYPE_RAW_TEXT, true),
-                                new CommandParameter("page", CommandParameter.ARG_TYPE_INT, true)
+                        put("otup", new CommandParameter[]{
+                            new CommandParameter("pos", CommandParameter.ARG_TYPE_BLOCK_POS, true),
+                            new CommandParameter("world", CommandParameter.ARG_TYPE_STRING, true)
                         });
                     }
                 });
+                put("otulist", new LinkedHashMap<String, CommandParameter[]>(){
+                    {
+                        put("otulist", new CommandParameter[]{
+                            new CommandParameter("otu(o)|runa(r)", CommandParameter.ARG_TYPE_RAW_TEXT, true),
+                            new CommandParameter("page", CommandParameter.ARG_TYPE_INT, true)
+                        });
+                    }
+                });
+            }
+        };
+
+        for(Map.Entry<String, String> entry : cmdDes.entrySet()) {
+            Command cmd = Server.getInstance().getCommandMap().getCommand(entry.getKey());
+            cmd.setDescription(entry.getValue());
+
+            if(cmdParams.containsKey(entry.getKey())) {
+                cmd.setCommandParameters(cmdParams.get(entry.getKey()));
+            }
+        }
 
         this.getServer().getPluginManager().registerEvents(this, this);
     }
@@ -206,25 +237,28 @@ public class MainClass extends PluginBase implements Listener {
         this.save();
     }
 
-    public void save() {//
+    private void save() {//
 
         //save config
         Config config = new Config(new File(this.getDataFolder(), "config.yml"), Config.YAML);
         config.set("jail-pos", pos2str(this.jailPos));
         config.save();
 
-        //save list
+        this.saveList();
+    }
+
+    private void saveList() {
         Config list = new Config(new File(this.getDataFolder(), "list.yml"), Config.YAML);
         list.set("otu", this.otuPlayers);
         list.set("runa", this.runaPlayers);
         list.save();
     }
 
-    public String pos2str(Position pos) {
+    private String pos2str(Position pos) {
         return pos.getX() + "," + pos.getY() + "," + pos.getZ() + "," + pos.getLevel().getFolderName();
     }
 
-    public Position str2pos(String str) {
+    private Position str2pos(String str) {
         Position pos = new Position(0, 0, 0, Server.getInstance().getDefaultLevel());
 
         String[] p = str.split(",");
@@ -354,7 +388,7 @@ public class MainClass extends PluginBase implements Listener {
                             this.removeRuna(name);
                         }
 
-                        this.save();
+                        this.saveList();
                     }
             }
         }
@@ -381,7 +415,7 @@ public class MainClass extends PluginBase implements Listener {
                         this.removeRuna(name);
                     }
 
-                    this.save();
+                    this.saveList();
                 }
         }
     }
@@ -414,24 +448,24 @@ public class MainClass extends PluginBase implements Listener {
                         this.sendCustomMessage(player,"otu.add.receiver");
                     }
 
-                    if(!(sender instanceof ConsoleCommandSender)) {
-                        this.getLogger().notice(this.getCustomMessage("otu.add.console", name, sender.getName()));
+                    if(this.noticeAdd) {
+                        Server.getInstance().getLogger().info(this.getCustomMessage("otu.add.notice", name, sender.getName()));
                     }
                 } else {
                     this.removeOtu(name);
 
-                    this.sendCustomMessage(sender, "otu.remove.console", sender.getName(), name);
+                    this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
 
                     if(player != null) {
                         this.sendCustomMessage(player, "otu.remove.receiver");
                     }
 
-                    if(!(sender instanceof ConsoleCommandSender)) {
-                        this.getLogger().notice(this.getCustomMessage("otu.remove.console", sender.getName(), name));
+                    if(this.noticeRemove) {
+                        Server.getInstance().getLogger().info(this.getCustomMessage("otu.remove.notice", name, sender.getName()));
                     }
                 }
 
-                this.save();
+                this.saveList();
                 break;
             case "runa":
                 if(args.length <= 0) {
@@ -455,8 +489,8 @@ public class MainClass extends PluginBase implements Listener {
                         this.sendCustomMessage(player, "runa.add.receiver");
                     }
 
-                    if(!(sender instanceof ConsoleCommandSender)) {
-                        this.getLogger().notice(this.getCustomMessage("runa.add.console", name, sender.getName()));
+                    if(this.noticeAdd) {
+                        Server.getInstance().getLogger().info(this.getCustomMessage("runa.add.notice", name, sender.getName()));
                     }
                 } else {
                     this.removeRuna(name);
@@ -467,12 +501,12 @@ public class MainClass extends PluginBase implements Listener {
                         this.sendCustomMessage(player, "runa.remove.receiver");
                     }
 
-                    if(!(sender instanceof ConsoleCommandSender)) {
-                        this.getLogger().notice(this.getCustomMessage("runa.remove.console", sender.getName(), name));
+                    if(this.noticeRemove) {
+                        Server.getInstance().getLogger().info(this.getCustomMessage("runa.remove.notice", name, sender.getName()));
                     }
                 }
 
-                this.save();
+                this.saveList();
                 break;
             case "otup":
                 Position pos;
@@ -567,7 +601,7 @@ public class MainClass extends PluginBase implements Listener {
         return true;
     }
 
-    private String getCustomMessage(String key, String... args) {
+    public String getCustomMessage(String key, String... args) {
         String msg = messages.get(key);
         if(msg == null) {
             msg = "NULL:" + key;
@@ -580,7 +614,7 @@ public class MainClass extends PluginBase implements Listener {
         return msg;
     }
 
-    private void sendCustomMessage(CommandSender player, String key, String... args) {
+    public void sendCustomMessage(CommandSender player, String key, String... args) {
         player.sendMessage(this.getCustomMessage(key, args));
     }
 
