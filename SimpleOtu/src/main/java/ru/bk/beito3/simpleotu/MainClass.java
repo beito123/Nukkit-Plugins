@@ -368,7 +368,7 @@ public class MainClass extends PluginBase implements Listener {
 
 
     @EventHandler(priority= EventPriority.MONITOR)
-    public void onCommandPreprocessMonitor(PlayerCommandPreprocessEvent event) {
+    public void onCommandPreprocessMonitor(PlayerCommandPreprocessEvent event) {//Player
         if(!this.autoRelease) {
             return;
         }
@@ -395,7 +395,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     @EventHandler(priority= EventPriority.MONITOR)
-    public void onServerCommandMonitor(ServerCommandEvent event) {
+    public void onServerCommandMonitor(ServerCommandEvent event) {//Console
         if(!this.autoRelease) {
             return;
         }
@@ -449,7 +449,7 @@ public class MainClass extends PluginBase implements Listener {
                     }
 
                     if(this.noticeAdd) {
-                        Server.getInstance().getLogger().info(this.getCustomMessage("otu.add.notice", name, sender.getName()));
+                        Server.getInstance().broadcastMessage(this.getCustomMessage("otu.add.notice", name, sender.getName()));
                     }
                 } else {
                     this.removeOtu(name);
@@ -461,7 +461,7 @@ public class MainClass extends PluginBase implements Listener {
                     }
 
                     if(this.noticeRemove) {
-                        Server.getInstance().getLogger().info(this.getCustomMessage("otu.remove.notice", name, sender.getName()));
+                        Server.getInstance().broadcastMessage(this.getCustomMessage("otu.remove.notice", name, sender.getName()));
                     }
                 }
 
@@ -490,7 +490,7 @@ public class MainClass extends PluginBase implements Listener {
                     }
 
                     if(this.noticeAdd) {
-                        Server.getInstance().getLogger().info(this.getCustomMessage("runa.add.notice", name, sender.getName()));
+                        Server.getInstance().broadcastMessage(this.getCustomMessage("runa.add.notice", name, sender.getName()));
                     }
                 } else {
                     this.removeRuna(name);
@@ -502,7 +502,7 @@ public class MainClass extends PluginBase implements Listener {
                     }
 
                     if(this.noticeRemove) {
-                        Server.getInstance().getLogger().info(this.getCustomMessage("runa.remove.notice", name, sender.getName()));
+                        Server.getInstance().broadcastMessage(this.getCustomMessage("runa.remove.notice", name, sender.getName()));
                     }
                 }
 
