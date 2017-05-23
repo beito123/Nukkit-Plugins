@@ -31,7 +31,7 @@ import java.lang.Math;
 
 public class MainClass extends PluginBase implements Listener {
 
-    private static int CUSTOM_MESSAGES_VERSION = 2;
+    private static int CUSTOM_MESSAGES_VERSION = 3;
 
     private Map<String, String> messages = new HashMap<>();
 
@@ -147,7 +147,7 @@ public class MainClass extends PluginBase implements Listener {
                 Server.getInstance().getPluginManager().disablePlugin(this);
                 return;
             }
-            
+
             msgList.setDefault(newConfig.getRootSection());//fill
 
             msgList.set("version", CUSTOM_MESSAGES_VERSION);
