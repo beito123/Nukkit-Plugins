@@ -1,7 +1,7 @@
 # Nukkit-Plugins
 These plugins are made for the certain server.
 
-##Build
+## Build
 Run the following command to build plugins.
 
 
