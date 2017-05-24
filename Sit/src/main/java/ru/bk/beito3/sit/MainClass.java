@@ -58,7 +58,8 @@ public class MainClass extends PluginBase implements Listener {
     public void onEnable() {
         //Fix description and parameters of the command
         Command sitCommand = Server.getInstance().getCommandMap().getCommand("sit");
-        sitCommand.setCommandParameters(new LinkedHashMap<String, CommandParameter[]>(){});
+        sitCommand.setCommandParameters(new LinkedHashMap<String, CommandParameter[]>() {
+        });
         sitCommand.setDescription("その場に座ります。");//and translate to jpn
 
         //Register a entity
@@ -70,14 +71,14 @@ public class MainClass extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
-        for(Map.Entry<String, Chair> entry : usingChairs.entrySet()) {
+        for (Map.Entry<String, Chair> entry : usingChairs.entrySet()) {
             entry.getValue().close();
         }
     }
 
     @EventHandler
     public void onDespawn(EntityDespawnEvent event) {
-        if(event.getEntity() instanceof Player) {
+        if (event.getEntity() instanceof Player) {
             closeChair((Player) event.getEntity());
         }
     }
@@ -99,14 +100,14 @@ public class MainClass extends PluginBase implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if(this.usingChairs.containsKey(event.getPlayer().getName())) {
+        if (this.usingChairs.containsKey(event.getPlayer().getName())) {
             Player player = event.getPlayer();
 
-            if(this.tempTap.containsKey(player.getName())) {//check tempTap
+            if (this.tempTap.containsKey(player.getName())) {//check tempTap
                 long diff = System.currentTimeMillis() - this.tempTap.get(player.getName());
-                if(diff <= 1000 * 0.8) {//0.8s
+                if (diff <= 1000 * 0.8) {//0.8s
                     Block block = event.getBlock();
-                    if(block instanceof BlockStairs && (block.getDamage() & 0x04) == 0) {
+                    if (block instanceof BlockStairs && (block.getDamage() & 0x04) == 0) {
                         this.sitPlayerOnBlock(player, block);
 
                         player.sendTip(TextFormat.GOLD + "Jump to stand up" + TextFormat.RESET);//ummm...english...
@@ -121,12 +122,12 @@ public class MainClass extends PluginBase implements Listener {
 
     @EventHandler
     public void onInteractPacket(DataPacketReceiveEvent event) {
-        if(event.getPacket().pid() == ProtocolInfo.INTERACT_PACKET) {
+        if (event.getPacket().pid() == ProtocolInfo.INTERACT_PACKET) {
             InteractPacket pk = (InteractPacket) event.getPacket();
             Player player = event.getPlayer();
 
             Entity target = player.getLevel().getEntity(pk.target);
-            if(target instanceof Chair) {
+            if (target instanceof Chair) {
                 byte action = pk.action;
                 if (action == InteractPacket.ACTION_LEFT_CLICK || action == InteractPacket.ACTION_VEHICLE_EXIT) {
                     this.closeChair(player);
@@ -137,9 +138,9 @@ public class MainClass extends PluginBase implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        switch(command.getName()) {
+        switch (command.getName()) {
             case "sit":
-                if(!(sender instanceof Player)) {
+                if (!(sender instanceof Player)) {
                     sender.sendMessage(TextFormat.RED + "Please run the command in-game." + TextFormat.RESET);
                     return true;
                 }
@@ -163,7 +164,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     private void sitPlayer(Player player, Vector3 pos) {
-        if(!player.isAlive() || player.closed) {
+        if (!player.isAlive() || player.closed) {
             return;
         }
 
@@ -196,7 +197,7 @@ public class MainClass extends PluginBase implements Listener {
         Double y = block.getY();
         Double z = block.getZ() + 0.5;
 
-        if(block instanceof BlockStairs) {
+        if (block instanceof BlockStairs) {
             y += 1.65;
         } else {
             y += 1.2;
@@ -207,16 +208,16 @@ public class MainClass extends PluginBase implements Listener {
         this.sitPlayer(player, pos);
     }
 
-    private void closeChair(Player player){
+    private void closeChair(Player player) {
         closeChair(player.getName());
     }
 
     private void closeChair(String name) {
-        if(usingChairs.containsKey(name)) {
+        if (usingChairs.containsKey(name)) {
             usingChairs.get(name).close();
             usingChairs.remove(name);
         }
-        if(this.tempTap.containsKey(name)) {
+        if (this.tempTap.containsKey(name)) {
             this.tempTap.remove(name);
         }
     }

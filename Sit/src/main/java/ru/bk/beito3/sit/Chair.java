@@ -31,23 +31,23 @@ import java.util.Map;
 
 public class Chair extends Entity {
 
-	private static final byte SITTING_ACTION_ID = 2;
+    private static final byte SITTING_ACTION_ID = 2;
     private static final byte STAND_ACTION_ID = 3;
 
     private EntityMetadata DefaultProperties = new EntityMetadata()
             .putLong(DATA_FLAGS,
                     1 << DATA_FLAG_NO_AI |
-                    1 << DATA_FLAG_INVISIBLE)
+                            1 << DATA_FLAG_INVISIBLE)
             .putString(DATA_NAMETAG, "");
 
 
-
-    public float getEyeHeight() {
-        return 0;
-    }
-
     public Chair(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
+    }
+
+    @Override
+    public float getEyeHeight() {
+        return 0;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class Chair extends Entity {
     protected void initEntity() {
         super.initEntity();
 
-        if(namedTag.exist("remove")) {
+        if (namedTag.exist("remove")) {
             close();
         }
     }
@@ -86,8 +86,8 @@ public class Chair extends Entity {
 
     @Override
     public void close() {
-        if(!this.closed) {
-            if(this.getSittingEntity() != null) {
+        if (!this.closed) {
+            if (this.getSittingEntity() != null) {
                 this.standupSittingEntity();
             }
         }
@@ -110,9 +110,9 @@ public class Chair extends Entity {
 
         boolean hasUpdate = super.onUpdate(currentTick);
 
-        if(this.age > 200) {//10s
+        if (this.age > 200) {//10s
             Entity entity = this.getSittingEntity();
-            if(entity == null || !entity.isAlive() || entity.closed) {
+            if (entity == null || !entity.isAlive() || entity.closed) {
                 this.kill();
                 hasUpdate = true;
             }
@@ -128,7 +128,7 @@ public class Chair extends Entity {
     }
 
     public boolean sitEntity(Entity entity) {
-        if(getSittingEntity() != null) {
+        if (getSittingEntity() != null) {
             return false;
         }
 
@@ -136,7 +136,7 @@ public class Chair extends Entity {
 
         sendLinkPacketToAll(SITTING_ACTION_ID);
 
-        if(getSittingEntity() instanceof Player) {
+        if (getSittingEntity() instanceof Player) {
             sendLinkPacketToSittingPlayer(SITTING_ACTION_ID);
         }
 
@@ -144,7 +144,7 @@ public class Chair extends Entity {
     }
 
     public boolean standupSittingEntity() {
-        if(getSittingEntity() == null) {
+        if (getSittingEntity() == null) {
             return false;
         }
 
@@ -152,7 +152,7 @@ public class Chair extends Entity {
 
         sendLinkPacketToAll(STAND_ACTION_ID);
 
-        if(getSittingEntity() instanceof Player) {
+        if (getSittingEntity() instanceof Player) {
             sendLinkPacketToSittingPlayer(STAND_ACTION_ID);
         }
 
@@ -160,7 +160,7 @@ public class Chair extends Entity {
     }
 
     public boolean sendLinkPacket(Player player, byte type) {
-        if(getSittingEntity() == null) {
+        if (getSittingEntity() == null) {
             return false;
         }
 
@@ -175,11 +175,11 @@ public class Chair extends Entity {
     }
 
     public boolean sendLinkPacketToSittingPlayer(byte type) {
-        if(getSittingEntity() == null || !(getSittingEntity() instanceof Player)) {
+        if (getSittingEntity() == null || !(getSittingEntity() instanceof Player)) {
             return false;
         }
 
-        Player player = (Player)getSittingEntity();
+        Player player = (Player) getSittingEntity();
 
         SetEntityLinkPacket pk = new SetEntityLinkPacket();
         pk.rider = this.getId();
@@ -194,13 +194,13 @@ public class Chair extends Entity {
     }
 
     public boolean sendLinkPacketToAll(byte type) {
-        if(getSittingEntity() == null) {
+        if (getSittingEntity() == null) {
             return false;
         }
 
         Map<Long, Player> players = getLevel().getPlayers();
 
-        for(Map.Entry<Long, Player> entry : players.entrySet()) {
+        for (Map.Entry<Long, Player> entry : players.entrySet()) {
             sendLinkPacket(entry.getValue(), type);
         }
 
