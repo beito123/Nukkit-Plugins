@@ -31,10 +31,10 @@ import java.util.Map;
 
 public class Chair extends Entity {
 
-	public static final byte SITTING_ACTION_ID = 2;
-    public static final byte STAND_ACTION_ID = 3;
+	private static final byte SITTING_ACTION_ID = 2;
+    private static final byte STAND_ACTION_ID = 3;
 
-    public EntityMetadata DefaultProperties = new EntityMetadata()
+    private EntityMetadata DefaultProperties = new EntityMetadata()
             .putLong(DATA_FLAGS,
                     1 << DATA_FLAG_NO_AI |
                     1 << DATA_FLAG_INVISIBLE)
@@ -67,7 +67,7 @@ public class Chair extends Entity {
     @Override
     public void spawnTo(Player player) {
         AddEntityPacket pk = new AddEntityPacket();
-        pk.type = EntityEgg.NETWORK_ID;
+        pk.type = EntityEgg.NETWORK_ID;//
         pk.entityUniqueId = this.getId();
         pk.entityRuntimeId = this.getId();
         pk.x = (float) this.x;
@@ -100,6 +100,28 @@ public class Chair extends Entity {
         super.saveNBT();
         namedTag.putByte("remove", 1);
     }
+
+
+    @Override
+    public boolean onUpdate(int currentTick) {
+        if (this.closed) {
+            return false;
+        }
+
+        boolean hasUpdate = super.onUpdate(currentTick);
+
+        if(this.age > 200) {//10s
+            Entity entity = this.getSittingEntity();
+            if(entity == null || !entity.isAlive() || entity.closed) {
+                this.kill();
+                hasUpdate = true;
+            }
+        }
+
+        return hasUpdate;
+    }
+
+    //
 
     public Entity getSittingEntity() {
         return this.linkedEntity;

@@ -30,10 +30,10 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDespawnEvent;
 import cn.nukkit.event.player.PlayerBedEnterEvent;
+import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.event.server.DataPacketReceiveEvent;
-import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.DoubleTag;
@@ -44,7 +44,9 @@ import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class MainClass extends PluginBase implements Listener {
 
@@ -54,12 +56,15 @@ public class MainClass extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
-        //command
+        //Fix description and parameters of the command
         Command sitCommand = Server.getInstance().getCommandMap().getCommand("sit");
-        sitCommand.setDescription("その場に座ります。");//jpn
         sitCommand.setCommandParameters(new LinkedHashMap<String, CommandParameter[]>(){});
+        sitCommand.setDescription("その場に座ります。");//and translate to jpn
 
+        //Register a entity
         Entity.registerEntity("Chair", Chair.class, true);
+
+        //Register event listener
         this.getServer().getPluginManager().registerEvents(this, this);
     }
 
@@ -78,6 +83,11 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     @EventHandler
+    public void onDead(PlayerDeathEvent event) {
+        closeChair(event.getEntity());
+    }
+
+    @EventHandler
     public void onBedEnter(PlayerBedEnterEvent event) {
         closeChair(event.getPlayer());
     }
@@ -92,25 +102,19 @@ public class MainClass extends PluginBase implements Listener {
         if(this.usingChairs.containsKey(event.getPlayer().getName())) {
             Player player = event.getPlayer();
 
-            if(this.tempTap.containsKey(player.getName())) {
+            if(this.tempTap.containsKey(player.getName())) {//check tempTap
                 long diff = System.currentTimeMillis() - this.tempTap.get(player.getName());
-                if(diff <= 1000 * 0.8) {
+                if(diff <= 1000 * 0.8) {//0.8s
                     Block block = event.getBlock();
                     if(block instanceof BlockStairs && (block.getDamage() & 0x04) == 0) {
-                        double x = block.getX() + 0.5;
-                        double y = block.getY();
-                        double z = block.getZ() + 0.5;
-
-                        y += 1.65;
-
-                        this.sitPlayer(player, new Vector3(x, y, z));
+                        this.sitPlayerOnBlock(player, block);
 
                         player.sendTip(TextFormat.GOLD + "Jump to stand up" + TextFormat.RESET);//ummm...english...
                     }
                 }
                 this.tempTap.remove(player.getName());
             } else {
-                tempTap.put(player.getName(), System.currentTimeMillis());
+                tempTap.put(player.getName(), System.currentTimeMillis());//adds time to tempTap
             }
         }
     }
@@ -158,20 +162,6 @@ public class MainClass extends PluginBase implements Listener {
         return true;
     }
 
-    private boolean isSitting(String name) {
-        return this.usingChairs.containsKey(name);
-    }
-
-    private boolean hasSatChair(Position pos) {
-        boolean r = false;
-
-        for(Map.Entry<String, Chair> entry : this.usingChairs.entrySet()) {
-            //
-        }
-
-        return r;
-    }
-
     private void sitPlayer(Player player, Vector3 pos) {
         if(!player.isAlive() || player.closed) {
             return;
@@ -199,6 +189,22 @@ public class MainClass extends PluginBase implements Listener {
         entity.sitEntity(player);
 
         usingChairs.put(player.getName(), entity);
+    }
+
+    private void sitPlayerOnBlock(Player player, Block block) {
+        Double x = block.getX() + 0.5;
+        Double y = block.getY();
+        Double z = block.getZ() + 0.5;
+
+        if(block instanceof BlockStairs) {
+            y += 1.65;
+        } else {
+            y += 1.2;
+        }
+
+        Vector3 pos = new Vector3(x, y, z);
+
+        this.sitPlayer(player, pos);
     }
 
     private void closeChair(Player player){
