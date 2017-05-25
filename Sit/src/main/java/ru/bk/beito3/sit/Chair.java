@@ -80,6 +80,10 @@ public class Chair extends Entity {
 
         player.dataPacket(pk);
 
+        if (this.hasSat() && player != this.getSittingEntity()) {
+            this.sendLinkPacket(player, SITTING_ACTION_ID);
+        }
+
         super.spawnTo(player);
 
     }
@@ -111,8 +115,7 @@ public class Chair extends Entity {
         boolean hasUpdate = super.onUpdate(currentTick);
 
         if (this.age > 200) {//10s
-            Entity entity = this.getSittingEntity();
-            if (entity == null || !entity.isAlive() || entity.closed) {
+            if (!hasSat()) {
                 this.kill();
                 hasUpdate = true;
             }
@@ -157,6 +160,11 @@ public class Chair extends Entity {
         }
 
         return true;
+    }
+
+    public boolean hasSat() {
+        Entity entity = this.getSittingEntity();
+        return entity != null && entity.isAlive() && !entity.closed;
     }
 
     public boolean sendLinkPacket(Player player, byte type) {
