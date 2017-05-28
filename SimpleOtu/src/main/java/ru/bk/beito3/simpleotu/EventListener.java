@@ -3,14 +3,12 @@ package ru.bk.beito3.simpleotu;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.EventHandler;
-import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.player.*;
-import cn.nukkit.event.server.ServerCommandEvent;
 
 public class EventListener implements Listener {
 
@@ -87,8 +85,13 @@ public class EventListener implements Listener {
     @EventHandler
     public void onKick(PlayerKickEvent event) {
         Player player = event.getPlayer();
-        if(this.plugin.isOtued(player.getName()) | this.plugin.isRunaed(player.getName())){
-            event.setCancelled();
+        if (player.isBanned() && this.plugin.isAutoRelease()) {
+            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+                this.plugin.removeOtu(player);
+                this.plugin.removeRuna(player);
+                this.plugin.saveList();
+                this.plugin.broadcastCustomMessage("autorelease.notice", player.getName());
+            }
         }
     }
 
@@ -109,61 +112,6 @@ public class EventListener implements Listener {
                         event.setCancelled();
                 }
             }
-        }
-    }
-
-
-
-    @EventHandler(priority= EventPriority.MONITOR)
-    public void onCommandPreprocessMonitor(PlayerCommandPreprocessEvent event) {//Player
-        if(!this.plugin.isAutoRelease()) {
-            return;
-        }
-
-        String msg = event.getMessage().toLowerCase();
-        if(msg.charAt(0) == '/') {
-            String[] s = msg.split(" ");
-            switch(s[0]) {
-                case "/ban":
-                case "/ban-ip":
-                case "/banip":
-                    if(s.length > 1) {
-                        String name = s[1];
-                        if(this.plugin.isOtued(name)) {
-                            this.plugin.removeOtu(name);
-                        } else if(this.plugin.isRunaed(name)) {
-                            this.plugin.removeRuna(name);
-                        }
-
-                        this.plugin.saveList();
-                    }
-            }
-        }
-    }
-
-    @EventHandler(priority= EventPriority.MONITOR)
-    public void onServerCommandMonitor(ServerCommandEvent event) {//Console
-        if(!this.plugin.isAutoRelease()) {
-            return;
-        }
-
-        String cmd = event.getCommand();
-
-        String[] s = cmd.split(" ");
-        switch(s[0]) {
-            case "ban":
-            case "ban-ip":
-            case "banip":
-                if(s.length > 1) {
-                    String name = s[1];
-                    if(this.plugin.isOtued(name)) {
-                        this.plugin.removeOtu(name);
-                    } else if(this.plugin.isRunaed(name)) {
-                        this.plugin.removeRuna(name);
-                    }
-
-                    this.plugin.saveList();
-                }
         }
     }
 }

@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class MainClass extends PluginBase implements Listener {
 
-    private static int CUSTOM_MESSAGES_VERSION = 4;
+    private static int CUSTOM_MESSAGES_VERSION = 5;
 
     private Map<String, String> messages = new HashMap<>();
 
@@ -54,7 +54,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public boolean removeOtu(Player player) {
-        return otuPlayers.remove(player);
+        return otuPlayers.remove(player.getName());
     }
 
     public boolean removeOtu(String name) {
