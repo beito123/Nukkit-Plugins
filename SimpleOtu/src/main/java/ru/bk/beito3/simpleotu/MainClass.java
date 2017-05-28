@@ -446,7 +446,7 @@ public class MainClass extends PluginBase implements Listener {
                 for(int i = page; i < list.size(); i++) {
                     msg.append(list.get(i));
                     if((page + 1) % 20 == 0) {
-                        msg.append(".omg");
+                        msg.append(".");
                         break;
                     }else if(((i + 1) % 4) == 0) {
                         msg.append(",\n");
