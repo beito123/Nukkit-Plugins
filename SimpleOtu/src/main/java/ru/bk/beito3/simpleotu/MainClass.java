@@ -463,14 +463,16 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public String getCustomMessage(String key, String... args) {
-        String msg = this.messages.get(key);
-        if(msg == null) {
-            msg = "NULL:" + key;
-        }
+        String msg = "";
 
         String prefix = this.messages.get("command.prefix");
         if(prefix != null && prefix.length() > 0) {
             msg += prefix + " ";
+        }
+
+        msg += this.messages.get(key);
+        if(msg == null) {
+            msg = "NULL:" + key;
         }
 
         for(int i = 0; i < args.length;i++) {
