@@ -311,6 +311,10 @@ public class MainClass extends PluginBase implements Listener {
                 } else {
                     this.removeOtu(name);
 
+                    if(this.isRunaed(name)) {//remove together
+                        this.removeRuna(name);
+                    }
+
                     this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
 
                     if(player != null) {
