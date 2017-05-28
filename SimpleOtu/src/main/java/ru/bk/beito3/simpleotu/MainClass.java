@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class MainClass extends PluginBase implements Listener {
 
-    private static int CUSTOM_MESSAGES_VERSION = 3;
+    private static int CUSTOM_MESSAGES_VERSION = 4;
 
     private Map<String, String> messages = new HashMap<>();
 
