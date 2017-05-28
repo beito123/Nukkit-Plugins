@@ -468,13 +468,13 @@ public class MainClass extends PluginBase implements Listener {
             msg = "NULL:" + key;
         }
 
-        String prefix = this.messages.get("command.prefix");
-        if(prefix != null && prefix.length() > 0) {
-            msg += prefix + " ";
-        }
-
         for(int i = 0; i < args.length;i++) {
             msg = msg.replace("{%" + i + "}", args[i]);
+        }
+
+        String prefix = this.messages.get("command.prefix");
+        if(prefix != null && prefix.length() > 0) {
+            msg = prefix + " " + msg;
         }
 
         return msg;
