@@ -46,19 +46,19 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public void addOtu(Player player) {
-        otuPlayers.add(player.getName());
+        this.addOtu(player.getName());
     }
 
     public void addOtu(String name) {
-        otuPlayers.add(name);
+        this.otuPlayers.add(name);
     }
 
-    public boolean removeOtu(Player player) {
-        return otuPlayers.remove(player.getName());
+    public void removeOtu(Player player) {
+        this.removeOtu(player.getName());
     }
 
-    public boolean removeOtu(String name) {
-        return otuPlayers.remove(name);
+    public void removeOtu(String name) {
+        this.otuPlayers.remove(name);
     }
 
     public boolean isOtued(Player player) {
@@ -66,7 +66,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public boolean isOtued(String name) {
-        return otuPlayers.contains(name);
+        return this.otuPlayers.contains(name);
     }
 
     public List<String> getRunaPlayers() {
@@ -74,19 +74,19 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public void addRuna(Player player) {
-        runaPlayers.add(player.getName());
+        this.addRuna(player.getName());
     }
 
     public void addRuna(String name) {
-        runaPlayers.add(name);
+        this.runaPlayers.add(name);
     }
 
-    public boolean removeRuna(Player player) {
-        return runaPlayers.remove(player.getName());
+    public void removeRuna(Player player) {
+        this.removeRuna(player.getName());
     }
 
-    public boolean removeRuna(String name) {
-        return runaPlayers.remove(name);
+    public void removeRuna(String name) {
+        this.runaPlayers.remove(name);
     }
 
     public boolean isRunaed(Player player) {
@@ -94,7 +94,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public boolean isRunaed(String name) {
-        return runaPlayers.contains(name);
+        return this.runaPlayers.contains(name);
     }
 
     public boolean isAutoRelease() {
