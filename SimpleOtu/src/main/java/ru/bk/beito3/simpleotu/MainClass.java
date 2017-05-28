@@ -306,7 +306,7 @@ public class MainClass extends PluginBase implements Listener {
                     }
 
                     if(this.noticeAdd) {
-                        Server.getInstance().broadcastMessage(this.getCustomMessage("otu.add.notice", sender.getName(), name));
+                        this.broadcastCustomMessage("otu.add.notice", sender.getName(), name);
                     }
                 } else {
                     this.removeOtu(name);
@@ -318,7 +318,7 @@ public class MainClass extends PluginBase implements Listener {
                     }
 
                     if(this.noticeRemove) {
-                        Server.getInstance().broadcastMessage(this.getCustomMessage("otu.remove.notice", sender.getName(), name));
+                        this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
                     }
                 }
 
@@ -347,7 +347,7 @@ public class MainClass extends PluginBase implements Listener {
                     }
 
                     if(this.noticeAdd) {
-                        Server.getInstance().broadcastMessage(this.getCustomMessage("runa.add.notice", sender.getName(), name));
+                        this.broadcastCustomMessage("runa.add.notice", sender.getName(), name);
                     }
                 } else {
                     this.removeRuna(name);
@@ -359,7 +359,7 @@ public class MainClass extends PluginBase implements Listener {
                     }
 
                     if(this.noticeRemove) {
-                        Server.getInstance().broadcastMessage(this.getCustomMessage("runa.remove.notice", sender.getName(), name));
+                        this.broadcastCustomMessage("runa.remove.notice", sender.getName(), name);
                     }
                 }
 
@@ -473,6 +473,10 @@ public class MainClass extends PluginBase implements Listener {
 
     public void sendCustomMessage(CommandSender player, String key, String... args) {
         player.sendMessage(this.getCustomMessage(key, args));
+    }
+
+    public void broadcastCustomMessage(String key, String... args) {
+        Server.getInstance().broadcastMessage(this.getCustomMessage(key, args));
     }
 
     private boolean isNumber(String s) {
