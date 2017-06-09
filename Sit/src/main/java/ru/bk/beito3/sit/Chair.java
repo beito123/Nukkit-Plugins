@@ -19,6 +19,7 @@ package ru.bk.beito3.sit;
 */
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.EntityMetadata;
 import cn.nukkit.entity.projectile.EntityEgg;
@@ -36,8 +37,8 @@ public class Chair extends Entity {
 
     private EntityMetadata DefaultProperties = new EntityMetadata()
             .putLong(DATA_FLAGS,
-                    1 << DATA_FLAG_NO_AI |
-                            1 << DATA_FLAG_INVISIBLE)
+                    1L << DATA_FLAG_NO_AI |
+                            1L << DATA_FLAG_INVISIBLE)
             .putString(DATA_NAMETAG, "");
 
 
@@ -105,25 +106,6 @@ public class Chair extends Entity {
         namedTag.putByte("remove", 1);
     }
 
-
-    @Override
-    public boolean onUpdate(int currentTick) {
-        if (this.closed) {
-            return false;
-        }
-
-        boolean hasUpdate = super.onUpdate(currentTick);
-
-        if (this.age > 200) {//10s
-            if (!hasSat()) {
-                this.kill();
-                hasUpdate = true;
-            }
-        }
-
-        return hasUpdate;
-    }
-
     //
 
     public Entity getSittingEntity() {
@@ -135,11 +117,12 @@ public class Chair extends Entity {
             return false;
         }
 
+        entity.setLinkedEntity(this);
         setLinkedEntity(entity);
 
         sendLinkPacketToAll(SITTING_ACTION_ID);
 
-        if (getSittingEntity() instanceof Player) {
+        if (this.getSittingEntity() instanceof Player) {
             sendLinkPacketToSittingPlayer(SITTING_ACTION_ID);
         }
 
@@ -151,6 +134,7 @@ public class Chair extends Entity {
             return false;
         }
 
+        this.getSittingEntity().setLinkedEntity(null);
         setLinkedEntity(null);
 
         sendLinkPacketToAll(STAND_ACTION_ID);
@@ -209,6 +193,7 @@ public class Chair extends Entity {
         Map<Long, Player> players = getLevel().getPlayers();
 
         for (Map.Entry<Long, Player> entry : players.entrySet()) {
+            Server.getInstance().broadcastMessage("test:" + entry.getValue().getName());
             sendLinkPacket(entry.getValue(), type);
         }
 
