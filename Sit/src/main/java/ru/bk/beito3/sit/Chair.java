@@ -19,10 +19,8 @@ package ru.bk.beito3.sit;
 */
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.EntityMetadata;
-import cn.nukkit.entity.projectile.EntityEgg;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.AddEntityPacket;
@@ -35,7 +33,7 @@ public class Chair extends Entity {
     private static final byte SITTING_ACTION_ID = 2;
     private static final byte STAND_ACTION_ID = 3;
 
-    private EntityMetadata DefaultProperties = new EntityMetadata()
+    private EntityMetadata defaultProperties = new EntityMetadata()
             .putLong(DATA_FLAGS,
                     1L << DATA_FLAG_NO_AI |
                             1L << DATA_FLAG_INVISIBLE)
@@ -68,7 +66,8 @@ public class Chair extends Entity {
     @Override
     public void spawnTo(Player player) {
         AddEntityPacket pk = new AddEntityPacket();
-        pk.type = EntityEgg.NETWORK_ID;//
+        //pk.type = EntityEgg.NETWORK_ID;//
+        pk.type = 64;//
         pk.entityUniqueId = this.getId();
         pk.entityRuntimeId = this.getId();
         pk.x = (float) this.x;
@@ -77,7 +76,7 @@ public class Chair extends Entity {
         pk.speedX = (float) this.motionX;
         pk.speedY = (float) this.motionY;
         pk.speedZ = (float) this.motionZ;
-        pk.metadata = DefaultProperties;
+        pk.metadata = defaultProperties;
 
         player.dataPacket(pk);
 
@@ -193,7 +192,6 @@ public class Chair extends Entity {
         Map<Long, Player> players = getLevel().getPlayers();
 
         for (Map.Entry<Long, Player> entry : players.entrySet()) {
-            Server.getInstance().broadcastMessage("test:" + entry.getValue().getName());
             sendLinkPacket(entry.getValue(), type);
         }
 

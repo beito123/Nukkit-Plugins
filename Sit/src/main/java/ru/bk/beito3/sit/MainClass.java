@@ -29,16 +29,14 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDespawnEvent;
-import cn.nukkit.event.player.PlayerBedEnterEvent;
-import cn.nukkit.event.player.PlayerDeathEvent;
-import cn.nukkit.event.player.PlayerInteractEvent;
-import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.event.player.*;
 import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.DoubleTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.PlayerActionPacket;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
@@ -53,6 +51,10 @@ public class MainClass extends PluginBase implements Listener {
 
     private Map<String, Long> tempTap = new HashMap<>();
 
+    private boolean decodeMode = false;
+
+    private final static byte PLAYER_ACTION_PACKET_ID = 0x24;
+
     @Override
     public void onEnable() {
         //Fix description and parameters of the command
@@ -63,6 +65,11 @@ public class MainClass extends PluginBase implements Listener {
 
         //Register a entity
         Entity.registerEntity("Chair", Chair.class, true);
+
+        DataPacket pk = this.getServer().getNetwork().getPacket(PLAYER_ACTION_PACKET_ID);
+        if (!(pk instanceof PlayerActionPacket)) {
+            this.decodeMode = true;
+        }
 
         //Register event listener
         this.getServer().getPluginManager().registerEvents(this, this);
@@ -121,15 +128,20 @@ public class MainClass extends PluginBase implements Listener {
 
     @EventHandler
     public void onActionPacket(DataPacketReceiveEvent event) {
-        if (event.getPacket().pid() == 0x24) {
-            //decode for non-supported
-            PlayerActionPacket pk = new PlayerActionPacket();
-            pk.setBuffer(event.getPacket().getBuffer());
-            pk.setOffset(1);//
-            pk.decode();
+        if (event.getPacket().pid() == PLAYER_ACTION_PACKET_ID) {//PlayerActionPacket for 1.1.0
+            //decode
+            PlayerActionPacket pk;
+            if (this.decodeMode) {
+                pk = new PlayerActionPacket();
+                pk.setBuffer(event.getPacket().getBuffer());
+                pk.setOffset(1);//skip id
+                pk.decode();
+            } else {
+                pk = (PlayerActionPacket) event.getPacket();
+            }
 
-            Server.getInstance().getLogger().notice("action:" + pk.action + " entiryid:" + event.getPlayer().getId());
-            Server.getInstance().getLogger().notice("packet:" + bytesToHex(pk.getBuffer()));
+            //Server.getInstance().getLogger().debug("action:" + pk.action + " entiryid:" + event.getPlayer().getId());
+            //Server.getInstance().getLogger().debug("packet:" + Binary.bytesToHexString(pk.getBuffer(), true));
 
             //PlayerActionPacket pk = (PlayerActionPacket) event.getPacket();
             Player player = event.getPlayer();
@@ -152,6 +164,13 @@ public class MainClass extends PluginBase implements Listener {
                 }
             }
         }*/
+    }
+
+    @EventHandler
+    public void onInvalidMove(PlayerInvalidMoveEvent event) {
+        if(event.getPlayer().getLinkedEntity() instanceof Chair) {
+            event.setCancelled();
+        }
     }
 
     @Override
@@ -222,10 +241,9 @@ public class MainClass extends PluginBase implements Listener {
         Double z = block.getZ() + 0.5;
 
         if (block instanceof BlockStairs) {
-            y += 1.8;
-            //z += 0.3;
+            y += 1.56;
         } else {
-            y += 1.2;
+            y += 1.16;
         }
 
         Vector3 pos = new Vector3(x, y, z);
@@ -242,20 +260,9 @@ public class MainClass extends PluginBase implements Listener {
             usingChairs.get(name).close();
             usingChairs.remove(name);
         }
+
         if (this.tempTap.containsKey(name)) {
             this.tempTap.remove(name);
         }
-    }
-
-    //debug
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 }
