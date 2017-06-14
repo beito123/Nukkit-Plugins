@@ -1,5 +1,5 @@
 name: Sit
-version: 1.0.4
+version: 1.0.5
 author: beito3
 api: ["1.0.0"]
 main: ru.bk.beito3.sit.MainClass
