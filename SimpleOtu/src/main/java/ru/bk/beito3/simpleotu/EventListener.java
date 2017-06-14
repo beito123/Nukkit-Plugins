@@ -23,34 +23,58 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onLogin(PlayerLoginEvent event) {
+        Player player = event.getPlayer();
+        if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+            this.plugin.addActivePlayer(player.getName());
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if(this.plugin.isActivePlayer(player)) {
+            this.plugin.removeActivePlayer(player.getName());
+        }
+    }
+
+    @EventHandler
     public void onBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        if(this.plugin.isOtued(player.getName()) | this.plugin.isRunaed(player.getName())) {
-            event.setCancelled();
+        if(this.plugin.isActivePlayer(player)) {
+            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+                event.setCancelled();
+            }
         }
     }
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        if(this.plugin.isOtued(player.getName()) | this.plugin.isRunaed(player.getName())){
-            event.setCancelled();
+        if(this.plugin.isActivePlayer(player)) {
+            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+                event.setCancelled();
+            }
         }
     }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if(this.plugin.isOtued(player.getName()) | this.plugin.isRunaed(player.getName())){
-            event.setCancelled();
+        if(this.plugin.isActivePlayer(player)) {
+            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+                event.setCancelled();
+            }
         }
     }
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
-        if(this.plugin.isRunaed(player.getName())){
-            event.setCancelled();
+        if(this.plugin.isActivePlayer(player)) {
+            if(this.plugin.isRunaed(player)) {
+                event.setCancelled();
+            }
         }
     }
 
@@ -58,7 +82,12 @@ public class EventListener implements Listener {
     public void onEntityDamageByEntity(EntityDamageEvent event) {
         if(event instanceof EntityDamageByEntityEvent) {
             Entity entity = ((EntityDamageByEntityEvent) event).getDamager();
-            if(entity instanceof Player && this.plugin.isRunaed(entity.getName())){
+            if(!(entity instanceof Player)){
+                return;
+            }
+
+            Player player = (Player) entity;
+            if(this.plugin.isActivePlayer(player) && this.plugin.isRunaed(player)) {
                 event.setCancelled();
             }
         }
@@ -67,30 +96,24 @@ public class EventListener implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        if(this.plugin.isOtued(player.getName())){
-            event.setRespawnPosition(this.plugin.getJailPos());
+        if(this.plugin.isActivePlayer(player)) {
+            if (this.plugin.isOtued(player)) {
+                event.setRespawnPosition(this.plugin.getJailPos());
+            }
         }
     }
-
-    /*
-    @EventHandler
-    public void onTeleport(PlayerTeleportEvent event) {
-        Player player = event.getPlayer();
-        if(this.isOtued(player.getName()) | this.isRunaed(player.getName())){
-            event.setCancelled();
-        }
-    }
-    */
 
     @EventHandler
     public void onKick(PlayerKickEvent event) {
         Player player = event.getPlayer();
         if (player.isBanned() && this.plugin.isAutoRelease()) {
-            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
-                this.plugin.removeOtu(player);
-                this.plugin.removeRuna(player);
-                this.plugin.saveList();
-                this.plugin.broadcastCustomMessage("autorelease.notice", player.getName());
+            if(this.plugin.isActivePlayer(player)) {
+                if (this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+                    this.plugin.removeOtu(player);
+                    this.plugin.removeRuna(player);
+                    this.plugin.saveList();
+                    this.plugin.broadcastCustomMessage("autorelease.notice", player.getName());
+                }
             }
         }
     }
@@ -98,18 +121,20 @@ public class EventListener implements Listener {
     @EventHandler
     public void onCommandPreprocess(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
-        if(this.plugin.isOtued(player.getName()) | this.plugin.isRunaed(player.getName())) {
-            String msg = event.getMessage().toLowerCase();
-            if(msg.charAt(0) == '/') {
-                switch(msg.split(" ")[0]) {
-                    case "/otu":
-                    case "/runa":
-                    case "/register":
-                    case "/login":
-                        break;
-                    default:
-                        this.plugin.sendCustomMessage(player, "otu.limit.command");
-                        event.setCancelled();
+        if(this.plugin.isActivePlayer(player)) {
+            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+                String msg = event.getMessage().toLowerCase();
+                if(msg.charAt(0) == '/') {
+                    switch(msg.split(" ")[0]) {
+                        case "/otu":
+                        case "/runa":
+                        case "/register":
+                        case "/login":
+                            break;
+                        default:
+                            this.plugin.sendCustomMessage(player, "otu.limit.command");
+                            event.setCancelled();
+                    }
                 }
             }
         }

@@ -6,11 +6,15 @@ main: ru.bk.beito3.simpleotu.MainClass
 
 commands:
   otu:
-    description: "Otu the specified player"
+    description: "Otu the player"
     usage: "/otu <player>"
     permission: otu.command.otu
+  unotu:
+    description: "Unotu the player"
+    usage: "/unotu <player>"
+    permission: otu.command.unotu
   runa:
-    description: "Runa the specified player"
+    description: "Runa the player"
     usage: "/runa <player>"
     permission: otu.command.runa
   otup:
@@ -21,6 +25,10 @@ commands:
     description: "Show the list of otu."
     usage: "/otulist [otu|runa] [page]"
     permission: otu.command.otulist
+  otuser:
+    description: "Search the otu player"
+    usage: "/otuser <player>"
+    permission: otu.command.otuser
 
 permissions:
   otu:
@@ -29,9 +37,13 @@ permissions:
         children:
           otu.command.otu:
             default: op
+          otu.command.unotu:
+            default: op
           otu.command.runa:
             default: op
           otu.command.otup:
             default: op
           otu.command.otulist:
+            default: op
+          otu.command.otuser:
             default: op

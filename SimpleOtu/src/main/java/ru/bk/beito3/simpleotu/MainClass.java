@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class MainClass extends PluginBase implements Listener {
 
-    private static int CUSTOM_MESSAGES_VERSION = 5;
+    private static int CUSTOM_MESSAGES_VERSION = 6;
 
     private Map<String, String> messages = new HashMap<>();
 
@@ -27,10 +27,14 @@ public class MainClass extends PluginBase implements Listener {
     private boolean autoRelease = false;
     private boolean noticeAdd = false;
     private boolean noticeRemove = false;
+    private boolean enableActivePlayers = false;
+    private boolean enableUnotu = false;
 
 
     private List<String> otuPlayers = new ArrayList<>();
     private List<String> runaPlayers = new ArrayList<>();
+
+    private List<String> activePlayers = new ArrayList<>();//for event target in server
 
 
     public Position getJailPos() {
@@ -50,7 +54,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public void addOtu(String name) {
-        this.otuPlayers.add(name);
+        this.otuPlayers.add(name.toLowerCase());
     }
 
     public void removeOtu(Player player) {
@@ -58,7 +62,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public void removeOtu(String name) {
-        this.otuPlayers.remove(name);
+        this.otuPlayers.remove(name.toLowerCase());
     }
 
     public boolean isOtued(Player player) {
@@ -66,7 +70,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public boolean isOtued(String name) {
-        return this.otuPlayers.contains(name);
+        return this.otuPlayers.contains(name.toLowerCase());
     }
 
     public List<String> getRunaPlayers() {
@@ -78,7 +82,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public void addRuna(String name) {
-        this.runaPlayers.add(name);
+        this.runaPlayers.add(name.toLowerCase());
     }
 
     public void removeRuna(Player player) {
@@ -86,7 +90,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public void removeRuna(String name) {
-        this.runaPlayers.remove(name);
+        this.runaPlayers.remove(name.toLowerCase());
     }
 
     public boolean isRunaed(Player player) {
@@ -94,7 +98,47 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public boolean isRunaed(String name) {
-        return this.runaPlayers.contains(name);
+        return this.runaPlayers.contains(name.toLowerCase());
+    }
+
+    public List<String> getActivePlayers() {
+        return this.activePlayers;
+    }
+
+    public void addActivePlayer(String name) {
+        if(!this.isActivePlayer(name)) {
+            this.activePlayers.add(name.toLowerCase());
+        }
+    }
+
+    public void removeActivePlayer(String name) {
+        if(this.isActivePlayer(name)) {
+            this.activePlayers.remove(name.toLowerCase());
+        }
+    }
+
+    public void clearActivePlayers() {
+        this.activePlayers.clear();
+    }
+
+    public boolean isActivePlayer(Player player) {
+        return this.isActivePlayer(player.getName());
+    }
+
+    public boolean isActivePlayer(String name) {
+        return !this.isEnableActivePlayers() || this.activePlayers.contains(name.toLowerCase());
+    }
+
+    public void updateActivePlayers() {
+        this.clearActivePlayers();
+
+        Map<UUID, Player> players = Server.getInstance().getOnlinePlayers();
+        for (Map.Entry<UUID, Player> entry : players.entrySet()) {
+            String name = entry.getValue().getName();
+            if (this.isOtued(name) || this.isRunaed(name)) {
+                this.addActivePlayer(name);
+            }
+        }
     }
 
     public boolean isAutoRelease() {
@@ -107,6 +151,14 @@ public class MainClass extends PluginBase implements Listener {
 
     public boolean isNoticeRemove() {
         return this.noticeRemove;
+    }
+
+    public boolean isEnableActivePlayers() {
+        return this.enableActivePlayers;
+    }
+
+    public boolean isEnableUnotu() {
+        return this.enableUnotu;
     }
 
     //Enable/D
@@ -127,6 +179,8 @@ public class MainClass extends PluginBase implements Listener {
                 put("auto-release", true);
                 put("notice-add", true);
                 put("notice-remove", true);
+                put("enable-active-players", true);
+                put("enable-unotu", true);
             }
         }));
 
@@ -134,6 +188,8 @@ public class MainClass extends PluginBase implements Listener {
         this.autoRelease = config.getBoolean("auto-release", false);
         this.noticeAdd = config.getBoolean("notice-add");
         this.noticeRemove = config.getBoolean("notice-remove");
+        this.enableActivePlayers = config.getBoolean("enable-active-players");
+        this.enableUnotu = config.getBoolean("enable-unotu");
 
         //load messages
         Config msgList = new Config(new File(this.getDataFolder(), "messages.properties"), Config.PROPERTIES);
@@ -180,9 +236,11 @@ public class MainClass extends PluginBase implements Listener {
 
         Map<String, String> cmdDes = new LinkedHashMap<String, String>(){{
             put("otu", MainClass.this.getCustomMessage("command.otu.description"));
+            put("unotu", MainClass.this.getCustomMessage("command.unotu.description"));
             put("runa", MainClass.this.getCustomMessage("command.runa.description"));
             put("otup", MainClass.this.getCustomMessage("command.otup.description"));
             put("otulist", MainClass.this.getCustomMessage("command.otulist.description"));
+            put("otuser", MainClass.this.getCustomMessage("command.otuser.description"));
         }};
 
         Map<String, Map<String, CommandParameter[]>> cmdParams = new LinkedHashMap<String, Map<String, CommandParameter[]>>(){
@@ -191,6 +249,13 @@ public class MainClass extends PluginBase implements Listener {
                     {
                         put("otu", new CommandParameter[]{
                             new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
+                        });
+                    }
+                });
+                put("unotu", new LinkedHashMap<String, CommandParameter[]>(){
+                    {
+                        put("unotu", new CommandParameter[]{
+                                new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
                         });
                     }
                 });
@@ -214,6 +279,13 @@ public class MainClass extends PluginBase implements Listener {
                         put("otulist", new CommandParameter[]{
                             new CommandParameter("otu(o)|runa(r)", CommandParameter.ARG_TYPE_RAW_TEXT, true),
                             new CommandParameter("page", CommandParameter.ARG_TYPE_INT, true)
+                        });
+                    }
+                });
+                put("otuser", new LinkedHashMap<String, CommandParameter[]>(){
+                    {
+                        put("otuser", new CommandParameter[]{
+                                new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
                         });
                     }
                 });
@@ -265,15 +337,22 @@ public class MainClass extends PluginBase implements Listener {
 
         String[] p = str.split(",");
         if(p.length >= 4) {
-            Level level = Server.getInstance().getLevelByName(p[3]);
-            if(level != null) {
-                pos = new Position(
+            try {
+                pos.setComponents(
                         Double.parseDouble(p[0]),
                         Double.parseDouble(p[1]),
-                        Double.parseDouble(p[2]),
-                        level);
+                        Double.parseDouble(p[2])
+                );
+            } catch(NumberFormatException e) {
+                return pos;
+            }
+
+            Level level = Server.getInstance().getLevelByName(p[3]);
+            if(level != null) {
+                pos.setLevel(level);
             }
         }
+
         return pos;
     }
 
@@ -308,7 +387,10 @@ public class MainClass extends PluginBase implements Listener {
                     if(this.noticeAdd) {
                         this.broadcastCustomMessage("otu.add.notice", sender.getName(), name);
                     }
-                } else {
+
+                    this.saveList();
+                    this.updateActivePlayers();
+                } else if (!this.isEnableUnotu()) {
                     this.removeOtu(name);
 
                     if(this.isRunaed(name)) {//remove together
@@ -324,9 +406,49 @@ public class MainClass extends PluginBase implements Listener {
                     if(this.noticeRemove) {
                         this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
                     }
+
+                    this.saveList();
+                    this.updateActivePlayers();
+                } else {
+                    this.sendCustomMessage(sender, "otu.already.exists", sender.getName(), name);
+                }
+                break;
+            case "unotu":
+                if(args.length <= 0) {
+                    this.sendCustomMessage(sender, "command.notEnoughParam");
+                    return true;
                 }
 
-                this.saveList();
+                name = args[0];
+
+                player = Server.getInstance().getPlayer(name);
+                if(player != null) {
+                    name = player.getName();
+                }
+
+                if (this.isOtued(name)) {
+                    this.removeOtu(name);
+
+                    if(this.isRunaed(name)) {//remove together
+                        this.removeRuna(name);
+                    }
+
+                    this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
+
+                    if(player != null) {
+                        this.sendCustomMessage(player, "otu.remove.receiver");
+                    }
+
+                    if(this.noticeRemove) {
+                        this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
+                    }
+
+                    this.saveList();
+                    this.updateActivePlayers();
+                } else {
+                    this.sendCustomMessage(sender, "otu.not.exists", sender.getName(), name);
+                }
+
                 break;
             case "runa":
                 if(args.length <= 0) {
@@ -368,6 +490,7 @@ public class MainClass extends PluginBase implements Listener {
                 }
 
                 this.saveList();
+                this.updateActivePlayers();
                 break;
             case "otup":
                 Position pos;
@@ -414,15 +537,12 @@ public class MainClass extends PluginBase implements Listener {
                 String type = "otu";
                 int page = 0;
 
-                if(args.length > 0 && this.isNumber(args[0])) {
-                    page = Integer.parseInt(args[0]);
-                } else {
-                    if(args.length > 0) {
+                if (args.length > 0) {
+                    if (this.isNumber(args[0])) {
+                        page = Integer.parseInt(args[0]) - 1;
+                    } else if (args.length > 1 && this.isNumber(args[1])) {
                         type = args[0];
-                    }
-
-                    if(args.length > 1 && this.isNumber(args[1])) {
-                        page = Integer.parseInt(args[1]);
+                        page = Integer.parseInt(args[0]) - 1;
                     }
                 }
 
@@ -436,26 +556,29 @@ public class MainClass extends PluginBase implements Listener {
                 }
 
 
-                int max = Math.max(0, (list.size() / 4) - 1);
+                int max = Math.max(0, (list.size() / 20));
 
                 page = Math.min(page, max);
 
                 String top = this.getCustomMessage("otulist." + type + ".top", String.valueOf(page + 1), String.valueOf(max + 1), String.valueOf(list.size()));
 
                 StringBuilder msg = new StringBuilder(top + "\n");
-                for(int i = page; i < list.size(); i++) {
+                for(int i = (page * 20); i < list.size(); i++) {
                     msg.append(list.get(i));
-                    if((page + 1) % 20 == 0) {
+                    if((i + 1) % 20 == 0) {//close
                         msg.append(".");
                         break;
-                    }else if(((i + 1) % 4) == 0) {
+                    }else if(((i + 1) % 4) == 0) {//next line
                         msg.append(",\n");
-                    } else {
+                    } else {//next
                         msg.append(", ");
                     }
                 }
 
                 sender.sendMessage(msg.toString());
+
+                break;
+            case "otuser":
 
                 break;
         }
