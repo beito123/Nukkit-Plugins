@@ -14,6 +14,7 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 
 import java.io.File;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -31,74 +32,50 @@ public class MainClass extends PluginBase implements Listener {
     private boolean enableUnotu = false;
 
 
-    private List<String> otuPlayers = new ArrayList<>();
-    private List<String> runaPlayers = new ArrayList<>();
+    private OtuList otulist;
 
     private List<String> activePlayers = new ArrayList<>();//for event target in server
 
-
-    public Position getJailPos() {
-        return this.jailPos;
+    public OtuList getOtuList() {
+        return this.otulist;
     }
 
-    public void setJailPos(Position pos) {
-        this.jailPos = pos;
+    public boolean isOtu(String name) {
+        return this.getOtuList().exists(name) && this.getOtuList().isOtu(name);
+
     }
 
-    public List<String> getOtuPlayers() {
-        return this.otuPlayers;
-    }
+    public boolean isRuna(String name) {
+        return this.getOtuList().exists(name) && this.getOtuList().isRuna(name);
 
-    public void addOtu(Player player) {
-        this.addOtu(player.getName());
     }
 
     public void addOtu(String name) {
-        this.otuPlayers.add(name.toLowerCase());
+        this.addOtu(name, null);
     }
 
-    public void removeOtu(Player player) {
-        this.removeOtu(player.getName());
+    public void addOtu(String name, String sender) {
+        this.getOtuList().addOtu(name, OtuList.MODE_OTU, OffsetDateTime.now(), sender);
     }
 
     public void removeOtu(String name) {
-        this.otuPlayers.remove(name.toLowerCase());
+        this.getOtuList().remove(name);
     }
 
-    public boolean isOtued(Player player) {
-        return this.isOtued(player.getName());
+    public void setRuna(String name, boolean b) {
+        this.setRuna(name, b, null);
     }
 
-    public boolean isOtued(String name) {
-        return this.otuPlayers.contains(name.toLowerCase());
-    }
-
-    public List<String> getRunaPlayers() {
-        return this.runaPlayers;
-    }
-
-    public void addRuna(Player player) {
-        this.addRuna(player.getName());
-    }
-
-    public void addRuna(String name) {
-        this.runaPlayers.add(name.toLowerCase());
-    }
-
-    public void removeRuna(Player player) {
-        this.removeRuna(player.getName());
-    }
-
-    public void removeRuna(String name) {
-        this.runaPlayers.remove(name.toLowerCase());
-    }
-
-    public boolean isRunaed(Player player) {
-        return this.isRunaed(player.getName());
-    }
-
-    public boolean isRunaed(String name) {
-        return this.runaPlayers.contains(name.toLowerCase());
+    public void setRuna(String name, boolean b, String sender) {
+        if (!b) {//remove
+            if (this.getOtuList().getMode(name) == OtuList.MODE_OTU_AND_RUNA){
+                this.getOtuList().setMode(name, OtuList.MODE_OTU);
+            } else {
+                this.getOtuList().remove(name);
+            }
+        } else {//add
+            this.getOtuList().addOtu(name, OtuList.MODE_RUNA, OffsetDateTime.now(), sender);
+        }
     }
 
     public List<String> getActivePlayers() {
@@ -135,10 +112,19 @@ public class MainClass extends PluginBase implements Listener {
         Map<UUID, Player> players = Server.getInstance().getOnlinePlayers();
         for (Map.Entry<UUID, Player> entry : players.entrySet()) {
             String name = entry.getValue().getName();
-            if (this.isOtued(name) || this.isRunaed(name)) {
+            if (this.isOtu(name) || this.isRuna(name)) {
                 this.addActivePlayer(name);
             }
         }
+    }
+
+
+    public Position getJailPos() {
+        return this.jailPos;
+    }
+
+    public void setJailPos(Position pos) {
+        this.jailPos = pos;
     }
 
     public boolean isAutoRelease() {
@@ -218,19 +204,14 @@ public class MainClass extends PluginBase implements Listener {
             }
         }
 
-        //load list
-        Config list = new Config(new File(this.getDataFolder(), "list.yml"), Config.YAML);
-        list.setDefault(new ConfigSection(new LinkedHashMap<String, Object>() {
-            {
+        this.otulist = new OtuList(new File(this.getDataFolder(), "list.json"), this.getLogger());
+        this.otulist.load();
 
-                put("otu", new ArrayList<String>());
-                put("runa", new ArrayList<String>());
-            }
-        }));
+        //Update otulist for v1.0.6 to new otulist for v1.1.0
+        if((new File(this.getDataFolder(), "list.yml")).exists()) {
+           updateOtuListTo110();
+        }
 
-        //load list
-        this.otuPlayers = list.getStringList("otu");
-        this.runaPlayers = list.getStringList("runa");
 
         //command
 
@@ -322,10 +303,7 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public void saveList() {
-        Config list = new Config(new File(this.getDataFolder(), "list.yml"), Config.YAML);
-        list.set("otu", this.otuPlayers);
-        list.set("runa", this.runaPlayers);
-        list.save();
+        this.getOtuList().save();
     }
 
     private String pos2str(Position pos) {
@@ -356,6 +334,61 @@ public class MainClass extends PluginBase implements Listener {
         return pos;
     }
 
+    public void updateOtuListTo110() {//update otulist from 1.0.6 to 1.1.0
+
+        this.getLogger().notice("Start updating otulist for v1.0.6 to v1.1.0");
+
+        File file = new File(this.getDataFolder(), "list.yml");
+
+        if(!file.exists() || file.isDirectory()) {
+            this.getLogger().notice("Could not find old otulist file. path:" + file.getAbsolutePath());
+            return;
+        }
+
+        Config list = new Config(file, Config.YAML);
+        list.setDefault(new ConfigSection(new LinkedHashMap<String, Object>() {
+            {
+                put("otu", new ArrayList<String>());
+                put("runa", new ArrayList<String>());
+            }
+        }));
+
+        List<String> otulist = list.getStringList("otu");
+        List<String> runalist = list.getStringList("runa");
+
+        for (String name : otulist) {
+            if (this.getOtuList().exists(name)) {
+                break;
+            }
+
+            int mode = OtuList.MODE_OTU;
+
+            if (runalist.contains(name)) {
+                mode = OtuList.MODE_OTU_AND_RUNA;
+            }
+
+            this.getOtuList().addOtu(name, mode);
+        }
+
+        for (String name : runalist) {
+            if (this.getOtuList().exists(name)) {
+                break;
+            }
+
+            int mode = OtuList.MODE_RUNA;
+
+            this.getOtuList().addOtu(name, mode);
+        }
+
+
+        list.save(new File(file.getParent(), "list-old.yml"));
+        file.delete();
+
+        this.saveList();
+
+        this.getLogger().notice("Updated otulist for v1.0.6 to v1.1.0");
+    }
+
     //Command
 
     @Override
@@ -374,8 +407,8 @@ public class MainClass extends PluginBase implements Listener {
                     name = player.getName();
                 }
 
-                if(!this.isOtued(name)) {
-                    this.addOtu(name);
+                if(!this.isOtu(name)) {
+                    this.getOtuList().addOtu(name, OtuList.MODE_OTU, OffsetDateTime.now(), sender.getName());
 
                     this.sendCustomMessage(sender, "otu.add.sender", name, sender.getName());
 
@@ -384,7 +417,7 @@ public class MainClass extends PluginBase implements Listener {
                         this.sendCustomMessage(player,"otu.add.receiver");
                     }
 
-                    if(this.noticeAdd) {
+                    if(this.isNoticeAdd()) {
                         this.broadcastCustomMessage("otu.add.notice", sender.getName(), name);
                     }
 
@@ -393,17 +426,13 @@ public class MainClass extends PluginBase implements Listener {
                 } else if (!this.isEnableUnotu()) {
                     this.removeOtu(name);
 
-                    if(this.isRunaed(name)) {//remove together
-                        this.removeRuna(name);
-                    }
-
                     this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
 
                     if(player != null) {
                         this.sendCustomMessage(player, "otu.remove.receiver");
                     }
 
-                    if(this.noticeRemove) {
+                    if(this.isNoticeRemove()) {
                         this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
                     }
 
@@ -426,12 +455,8 @@ public class MainClass extends PluginBase implements Listener {
                     name = player.getName();
                 }
 
-                if (this.isOtued(name)) {
+                if (this.isOtu(name)) {
                     this.removeOtu(name);
-
-                    if(this.isRunaed(name)) {//remove together
-                        this.removeRuna(name);
-                    }
 
                     this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
 
@@ -439,7 +464,7 @@ public class MainClass extends PluginBase implements Listener {
                         this.sendCustomMessage(player, "otu.remove.receiver");
                     }
 
-                    if(this.noticeRemove) {
+                    if(this.isNoticeRemove()) {
                         this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
                     }
 
@@ -463,8 +488,8 @@ public class MainClass extends PluginBase implements Listener {
                     name = player.getName();
                 }
 
-                if(!this.isRunaed(name)) {
-                    this.addRuna(name);
+                if(!this.isRuna(name)) {
+                    this.setRuna(name, true, sender.getName());
 
                     this.sendCustomMessage(sender, "runa.add.sender", name, sender.getName());
 
@@ -472,11 +497,11 @@ public class MainClass extends PluginBase implements Listener {
                         this.sendCustomMessage(player, "runa.add.receiver");
                     }
 
-                    if(this.noticeAdd) {
+                    if(this.isNoticeAdd()) {
                         this.broadcastCustomMessage("runa.add.notice", sender.getName(), name);
                     }
                 } else {
-                    this.removeRuna(name);
+                    this.setRuna(name, false, sender.getName());
 
                     this.sendCustomMessage(sender, "runa.remove.sender", name, sender.getName());
 
@@ -484,7 +509,7 @@ public class MainClass extends PluginBase implements Listener {
                         this.sendCustomMessage(player, "runa.remove.receiver");
                     }
 
-                    if(this.noticeRemove) {
+                    if(this.isNoticeRemove()) {
                         this.broadcastCustomMessage("runa.remove.notice", sender.getName(), name);
                     }
                 }
@@ -540,19 +565,22 @@ public class MainClass extends PluginBase implements Listener {
                 if (args.length > 0) {
                     if (this.isNumber(args[0])) {
                         page = Integer.parseInt(args[0]) - 1;
-                    } else if (args.length > 1 && this.isNumber(args[1])) {
+                    } else {
                         type = args[0];
-                        page = Integer.parseInt(args[0]) - 1;
+                        if (args.length > 1 && this.isNumber(args[1])) {
+                            page = Integer.parseInt(args[1]) - 1;
+                        }
                     }
                 }
 
                 List<String> list;
+                this.getLogger().debug("test:" + type);
                 if(type.equals("runa") || type.equals("r")) {
                     type = "runa";
-                    list = this.getRunaPlayers();
+                    list = this.getOtuList().getRunaNames();
                 } else {
                     type ="otu";
-                    list = this.getOtuPlayers();
+                    list = this.getOtuList().getOtuNames();
                 }
 
 
@@ -579,6 +607,16 @@ public class MainClass extends PluginBase implements Listener {
 
                 break;
             case "otuser":
+                if (args.length <= 0) {
+                    this.sendCustomMessage(sender, "command.notEnoughParam");
+                    return true;
+                }
+
+                name = args[0];
+
+                List<String> mOtu = new ArrayList<>();
+
+                //TODO: write
 
                 break;
         }

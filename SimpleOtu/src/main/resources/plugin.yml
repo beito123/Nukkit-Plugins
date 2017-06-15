@@ -26,7 +26,7 @@ commands:
     usage: "/otulist [otu|runa] [page]"
     permission: otu.command.otulist
   otuser:
-    description: "Search the otu player"
+    description: "Search the otu or runa player"
     usage: "/otuser <player>"
     permission: otu.command.otuser
 

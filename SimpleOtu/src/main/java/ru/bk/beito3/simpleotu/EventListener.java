@@ -25,7 +25,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onLogin(PlayerLoginEvent event) {
         Player player = event.getPlayer();
-        if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+        if(this.plugin.isOtu(player.getName()) || this.plugin.isRuna(player.getName())) {
             this.plugin.addActivePlayer(player.getName());
         }
     }
@@ -42,7 +42,7 @@ public class EventListener implements Listener {
     public void onBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if(this.plugin.isActivePlayer(player)) {
-            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+            if(this.plugin.isOtu(player.getName()) || this.plugin.isRuna(player.getName())) {
                 event.setCancelled();
             }
         }
@@ -52,7 +52,7 @@ public class EventListener implements Listener {
     public void onPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         if(this.plugin.isActivePlayer(player)) {
-            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+            if(this.plugin.isOtu(player.getName()) || this.plugin.isRuna(player.getName())) {
                 event.setCancelled();
             }
         }
@@ -62,7 +62,7 @@ public class EventListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if(this.plugin.isActivePlayer(player)) {
-            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+            if(this.plugin.isOtu(player.getName()) || this.plugin.isRuna(player.getName())) {
                 event.setCancelled();
             }
         }
@@ -72,7 +72,7 @@ public class EventListener implements Listener {
     public void onMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         if(this.plugin.isActivePlayer(player)) {
-            if(this.plugin.isRunaed(player)) {
+            if(this.plugin.isRuna(player.getName())) {
                 event.setCancelled();
             }
         }
@@ -87,7 +87,7 @@ public class EventListener implements Listener {
             }
 
             Player player = (Player) entity;
-            if(this.plugin.isActivePlayer(player) && this.plugin.isRunaed(player)) {
+            if(this.plugin.isActivePlayer(player) && this.plugin.isRuna(player.getName())) {
                 event.setCancelled();
             }
         }
@@ -97,7 +97,7 @@ public class EventListener implements Listener {
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         if(this.plugin.isActivePlayer(player)) {
-            if (this.plugin.isOtued(player)) {
+            if (this.plugin.isOtu(player.getName())) {
                 event.setRespawnPosition(this.plugin.getJailPos());
             }
         }
@@ -108,9 +108,9 @@ public class EventListener implements Listener {
         Player player = event.getPlayer();
         if (player.isBanned() && this.plugin.isAutoRelease()) {
             if(this.plugin.isActivePlayer(player)) {
-                if (this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
-                    this.plugin.removeOtu(player);
-                    this.plugin.removeRuna(player);
+                if (this.plugin.isOtu(player.getName()) || this.plugin.isRuna(player.getName())) {
+                    this.plugin.removeOtu(player.getName());
+                    this.plugin.setRuna(player.getName(), false);
                     this.plugin.saveList();
                     this.plugin.broadcastCustomMessage("autorelease.notice", player.getName());
                 }
@@ -122,11 +122,12 @@ public class EventListener implements Listener {
     public void onCommandPreprocess(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
         if(this.plugin.isActivePlayer(player)) {
-            if(this.plugin.isOtued(player) || this.plugin.isRunaed(player)) {
+            if(this.plugin.isOtu(player.getName()) || this.plugin.isRuna(player.getName())) {
                 String msg = event.getMessage().toLowerCase();
                 if(msg.charAt(0) == '/') {
                     switch(msg.split(" ")[0]) {
                         case "/otu":
+                        case "/unotu":
                         case "/runa":
                         case "/register":
                         case "/login":
