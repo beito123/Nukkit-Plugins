@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 
 public class OtuEntry {
 
-    public final static String TIME_FORMAT = "yyyy-MM-dd hh:mm:ss Z";
+    public final static String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss x";
 
     @SerializedName("name")
     @Expose
@@ -63,6 +63,7 @@ public class OtuEntry {
     }
     public OffsetDateTime getCreationDate() {
         return OffsetDateTime.parse(this.creationDate, DateTimeFormatter.ofPattern(TIME_FORMAT));
+        //return DateTimeFormatter.ofPattern(TIME_FORMAT).parse(this.creationDate, OffsetDateTime::from);
     }
 
     public void setCreationDate(OffsetDateTime creationDate) {

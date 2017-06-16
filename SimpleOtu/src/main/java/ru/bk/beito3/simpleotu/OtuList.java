@@ -33,6 +33,10 @@ public class OtuList {
         return this.list;
     }
 
+    public List<OtuEntry> getEntryList() {
+        return new ArrayList<>(this.list.values());
+    }
+
     public List<String> getOtuNames() {
         List<String> list = new ArrayList<>();
 

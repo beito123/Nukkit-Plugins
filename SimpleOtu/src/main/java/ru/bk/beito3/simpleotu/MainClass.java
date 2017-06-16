@@ -15,12 +15,17 @@ import cn.nukkit.utils.ConfigSection;
 
 import java.io.File;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.zone.ZoneRulesException;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class MainClass extends PluginBase implements Listener {
 
-    private static int CUSTOM_MESSAGES_VERSION = 6;
+    private static int CUSTOM_MESSAGES_VERSION = 9;
+
+    private static String DEFAULT_TIMEZONE = "Asia/Tokyo";
 
     private Map<String, String> messages = new HashMap<>();
 
@@ -30,6 +35,7 @@ public class MainClass extends PluginBase implements Listener {
     private boolean noticeRemove = false;
     private boolean enableActivePlayers = false;
     private boolean enableUnotu = false;
+    private String timeZone = DEFAULT_TIMEZONE;
 
 
     private OtuList otulist;
@@ -147,6 +153,17 @@ public class MainClass extends PluginBase implements Listener {
         return this.enableUnotu;
     }
 
+    public ZoneId getTimeZone() {
+        ZoneId timezone;
+        try {
+            timezone = ZoneId.of("Asia/Tokyo");
+        } catch (ZoneRulesException e) {
+            timezone = ZoneId.systemDefault();
+        }
+
+        return timezone;
+    }
+
     //Enable/D
 
     @Override
@@ -167,6 +184,7 @@ public class MainClass extends PluginBase implements Listener {
                 put("notice-remove", true);
                 put("enable-active-players", true);
                 put("enable-unotu", true);
+                put("timezone", DEFAULT_TIMEZONE);
             }
         }));
 
@@ -176,6 +194,7 @@ public class MainClass extends PluginBase implements Listener {
         this.noticeRemove = config.getBoolean("notice-remove");
         this.enableActivePlayers = config.getBoolean("enable-active-players");
         this.enableUnotu = config.getBoolean("enable-unotu");
+        this.timeZone = config.getString("timezone");
 
         //load messages
         Config msgList = new Config(new File(this.getDataFolder(), "messages.properties"), Config.PROPERTIES);
@@ -393,248 +412,299 @@ public class MainClass extends PluginBase implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        switch (command.getName()) {
-            case "otu":
-                if(args.length <= 0) {
-                    this.sendCustomMessage(sender, "command.notEnoughParam");
-                    return true;
+        String cmd = command.getName();
+        if (cmd.equals("otu")) {
+            if (args.length <= 0) {
+                this.sendCustomMessage(sender, "command.notEnoughParam");
+                return true;
+            }
+
+            String name = args[0];
+
+            Player player = Server.getInstance().getPlayer(name);
+            if (player != null) {
+                name = player.getName();
+            }
+
+            if (!this.isOtu(name)) {
+                this.getOtuList().addOtu(name, OtuList.MODE_OTU, OffsetDateTime.now(), sender.getName());
+
+                this.sendCustomMessage(sender, "otu.add.sender", name, sender.getName());
+
+                if (player != null) {
+                    player.teleport(this.getJailPos());
+                    this.sendCustomMessage(player, "otu.add.receiver");
                 }
 
-                String name = args[0];
-
-                Player player = Server.getInstance().getPlayer(name);
-                if(player != null) {
-                    name = player.getName();
-                }
-
-                if(!this.isOtu(name)) {
-                    this.getOtuList().addOtu(name, OtuList.MODE_OTU, OffsetDateTime.now(), sender.getName());
-
-                    this.sendCustomMessage(sender, "otu.add.sender", name, sender.getName());
-
-                    if(player != null) {
-                        player.teleport(this.getJailPos());
-                        this.sendCustomMessage(player,"otu.add.receiver");
-                    }
-
-                    if(this.isNoticeAdd()) {
-                        this.broadcastCustomMessage("otu.add.notice", sender.getName(), name);
-                    }
-
-                    this.saveList();
-                    this.updateActivePlayers();
-                } else if (!this.isEnableUnotu()) {
-                    this.removeOtu(name);
-
-                    this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
-
-                    if(player != null) {
-                        this.sendCustomMessage(player, "otu.remove.receiver");
-                    }
-
-                    if(this.isNoticeRemove()) {
-                        this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
-                    }
-
-                    this.saveList();
-                    this.updateActivePlayers();
-                } else {
-                    this.sendCustomMessage(sender, "otu.already.exists", sender.getName(), name);
-                }
-                break;
-            case "unotu":
-                if(args.length <= 0) {
-                    this.sendCustomMessage(sender, "command.notEnoughParam");
-                    return true;
-                }
-
-                name = args[0];
-
-                player = Server.getInstance().getPlayer(name);
-                if(player != null) {
-                    name = player.getName();
-                }
-
-                if (this.isOtu(name)) {
-                    this.removeOtu(name);
-
-                    this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
-
-                    if(player != null) {
-                        this.sendCustomMessage(player, "otu.remove.receiver");
-                    }
-
-                    if(this.isNoticeRemove()) {
-                        this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
-                    }
-
-                    this.saveList();
-                    this.updateActivePlayers();
-                } else {
-                    this.sendCustomMessage(sender, "otu.not.exists", sender.getName(), name);
-                }
-
-                break;
-            case "runa":
-                if(args.length <= 0) {
-                    this.sendCustomMessage(sender, "command.notEnoughParam");
-                    return true;
-                }
-
-                name = args[0];
-
-                player = Server.getInstance().getPlayer(name);
-                if(player != null) {
-                    name = player.getName();
-                }
-
-                if(!this.isRuna(name)) {
-                    this.setRuna(name, true, sender.getName());
-
-                    this.sendCustomMessage(sender, "runa.add.sender", name, sender.getName());
-
-                    if(player != null) {
-                        this.sendCustomMessage(player, "runa.add.receiver");
-                    }
-
-                    if(this.isNoticeAdd()) {
-                        this.broadcastCustomMessage("runa.add.notice", sender.getName(), name);
-                    }
-                } else {
-                    this.setRuna(name, false, sender.getName());
-
-                    this.sendCustomMessage(sender, "runa.remove.sender", name, sender.getName());
-
-                    if(player != null) {
-                        this.sendCustomMessage(player, "runa.remove.receiver");
-                    }
-
-                    if(this.isNoticeRemove()) {
-                        this.broadcastCustomMessage("runa.remove.notice", sender.getName(), name);
-                    }
+                if (this.isNoticeAdd()) {
+                    this.broadcastCustomMessage("otu.add.notice", sender.getName(), name);
                 }
 
                 this.saveList();
                 this.updateActivePlayers();
-                break;
-            case "otup":
-                Position pos;
+            } else if (!this.isEnableUnotu()) {
+                this.removeOtu(name);
 
-                if(sender instanceof ConsoleCommandSender || args.length > 0) {
-                    if(sender instanceof ConsoleCommandSender && args.length < 4) {
-                        this.sendCustomMessage(sender, "otup.notEnoughParam");
-                        return true;
-                    }
+                this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
 
-                    Double x, y, z;
-                    try{
-                        x = Double.parseDouble(args[0]);
-                        y = Double.parseDouble(args[1]);
-                        z = Double.parseDouble(args[2]);
-                    } catch (NumberFormatException e) {
-                        this.sendCustomMessage(sender, "otup.onlyNumber");
-                        return true;
-                    }
-
-                    Level level = Server.getInstance().getLevelByName(args[3]);
-                    if(level == null) {
-                        this.sendCustomMessage(sender, "otup.notFountTheWorld");
-                        return true;
-                    }
-
-                    pos = new Position(x, y, z, level).floor().add(0.5, 0, 0.5);
-                } else {
-                    pos = ((Player) sender).getPosition().floor().add(0.5, 0, 0.5);
+                if (player != null) {
+                    this.sendCustomMessage(player, "otu.remove.receiver");
                 }
 
-                this.setJailPos(pos);
-
-                this.save();
-
-                this.sendCustomMessage(sender, "otup.set",
-                        String.valueOf(pos.getX()),
-                        String.valueOf(pos.getY()),
-                        String.valueOf(pos.getZ()),
-                        pos.getLevel().getFolderName());
-
-                break;
-            case "otulist":
-                String type = "otu";
-                int page = 0;
-
-                if (args.length > 0) {
-                    if (this.isNumber(args[0])) {
-                        page = Integer.parseInt(args[0]) - 1;
-                    } else {
-                        type = args[0];
-                        if (args.length > 1 && this.isNumber(args[1])) {
-                            page = Integer.parseInt(args[1]) - 1;
-                        }
-                    }
+                if (this.isNoticeRemove()) {
+                    this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
                 }
 
-                List<String> list;
-                this.getLogger().debug("test:" + type);
-                if(type.equals("runa") || type.equals("r")) {
-                    type = "runa";
-                    list = this.getOtuList().getRunaNames();
-                } else {
-                    type ="otu";
-                    list = this.getOtuList().getOtuNames();
+                this.saveList();
+                this.updateActivePlayers();
+            } else {
+                this.sendCustomMessage(sender, "otu.already.exists", sender.getName(), name);
+            }
+        } else if (cmd.equals("unotu")) {
+
+            if (args.length <= 0) {
+                this.sendCustomMessage(sender, "command.notEnoughParam");
+                return true;
+            }
+
+            String name = args[0];
+
+            Player player = Server.getInstance().getPlayer(name);
+            if (player != null) {
+                name = player.getName();
+            }
+
+            if (this.isOtu(name)) {
+                this.removeOtu(name);
+
+                this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
+
+                if (player != null) {
+                    this.sendCustomMessage(player, "otu.remove.receiver");
                 }
 
-
-                int max = Math.max(0, (list.size() / 20));
-
-                page = Math.min(page, max);
-
-                String top = this.getCustomMessage("otulist." + type + ".top", String.valueOf(page + 1), String.valueOf(max + 1), String.valueOf(list.size()));
-
-                StringBuilder msg = new StringBuilder(top + "\n");
-                for(int i = (page * 20); i < list.size(); i++) {
-                    msg.append(list.get(i));
-                    if((i + 1) % 20 == 0) {//close
-                        msg.append(".");
-                        break;
-                    }else if(((i + 1) % 4) == 0) {//next line
-                        msg.append(",\n");
-                    } else {//next
-                        msg.append(", ");
-                    }
+                if (this.isNoticeRemove()) {
+                    this.broadcastCustomMessage("otu.remove.notice", sender.getName(), name);
                 }
 
-                sender.sendMessage(msg.toString());
+                this.saveList();
+                this.updateActivePlayers();
+            } else {
+                this.sendCustomMessage(sender, "otu.not.exists", sender.getName(), name);
+            }
 
-                break;
-            case "otuser":
-                if (args.length <= 0) {
-                    this.sendCustomMessage(sender, "command.notEnoughParam");
+        } else if (cmd.equals("runa")) {
+
+            if (args.length <= 0) {
+                this.sendCustomMessage(sender, "command.notEnoughParam");
+                return true;
+            }
+
+            String name = args[0];
+
+            Player player = Server.getInstance().getPlayer(name);
+            if (player != null) {
+                name = player.getName();
+            }
+
+            if (!this.isRuna(name)) {
+                this.setRuna(name, true, sender.getName());
+
+                this.sendCustomMessage(sender, "runa.add.sender", name, sender.getName());
+
+                if (player != null) {
+                    this.sendCustomMessage(player, "runa.add.receiver");
+                }
+
+                if (this.isNoticeAdd()) {
+                    this.broadcastCustomMessage("runa.add.notice", sender.getName(), name);
+                }
+            } else {
+                this.setRuna(name, false, sender.getName());
+
+                this.sendCustomMessage(sender, "runa.remove.sender", name, sender.getName());
+
+                if (player != null) {
+                    this.sendCustomMessage(player, "runa.remove.receiver");
+                }
+
+                if (this.isNoticeRemove()) {
+                    this.broadcastCustomMessage("runa.remove.notice", sender.getName(), name);
+                }
+            }
+
+            this.saveList();
+            this.updateActivePlayers();
+        } else if (cmd.equals("otup")) {
+
+            Position pos;
+
+            if (sender instanceof ConsoleCommandSender || args.length > 0) {
+                if (sender instanceof ConsoleCommandSender && args.length < 4) {
+                    this.sendCustomMessage(sender, "otup.notEnoughParam");
                     return true;
                 }
 
-                name = args[0];
+                Double x, y, z;
+                try {
+                    x = Double.parseDouble(args[0]);
+                    y = Double.parseDouble(args[1]);
+                    z = Double.parseDouble(args[2]);
+                } catch (NumberFormatException e) {
+                    this.sendCustomMessage(sender, "otup.onlyNumber");
+                    return true;
+                }
 
-                List<String> mOtu = new ArrayList<>();
+                Level level = Server.getInstance().getLevelByName(args[3]);
+                if (level == null) {
+                    this.sendCustomMessage(sender, "otup.notFountTheWorld");
+                    return true;
+                }
 
-                //TODO: write
+                pos = new Position(x, y, z, level).floor().add(0.5, 0, 0.5);
+            } else {
+                pos = ((Player) sender).getPosition().floor().add(0.5, 0, 0.5);
+            }
 
-                break;
+            this.setJailPos(pos);
+
+            this.save();
+
+            this.sendCustomMessage(sender, "otup.set",
+                    String.valueOf(pos.getX()),
+                    String.valueOf(pos.getY()),
+                    String.valueOf(pos.getZ()),
+                    pos.getLevel().getFolderName());
+
+        } else if (cmd.equals("otulist")) {
+
+            String type = "otu";
+            int page = 0;
+
+            if (args.length > 0) {
+                if (this.isNumber(args[0])) {
+                    page = Integer.parseInt(args[0]) - 1;
+                } else {
+                    type = args[0];
+                    if (args.length > 1 && this.isNumber(args[1])) {
+                        page = Integer.parseInt(args[1]) - 1;
+                    }
+                }
+            }
+
+            List<String> list;
+            this.getLogger().debug("test:" + type);
+            if (type.equals("runa") || type.equals("r")) {
+                type = "runa";
+                list = this.getOtuList().getRunaNames();
+            } else {
+                type = "otu";
+                list = this.getOtuList().getOtuNames();
+            }
+
+
+            int max = Math.max(0, (list.size() / 20));
+
+            page = Math.min(page, max);
+
+            String top = this.getCustomMessage("otulist." + type + ".top", String.valueOf(page + 1), String.valueOf(max + 1), String.valueOf(list.size()));
+
+            StringBuilder msg = new StringBuilder(top + "\n");
+            for (int i = (page * 20); i < list.size(); i++) {
+                msg.append(list.get(i));
+                if ((i + 1) % 20 == 0) {//close
+                    msg.append(".");
+                    break;
+                } else if (((i + 1) % 4) == 0) {//next line
+                    msg.append(",\n");
+                } else {//next
+                    msg.append(", ");
+                }
+            }
+
+            sender.sendMessage(msg.toString());
+
+        } else if (cmd.equals("otuser")) {
+            if (args.length <= 0) {
+                this.sendCustomMessage(sender, "command.notEnoughParam");
+                return true;
+            }
+
+            String name = args[0].toLowerCase();
+
+            List<OtuEntry> list = new ArrayList<>();
+
+            List<OtuEntry> entries = this.getOtuList().getEntryList();
+
+            for (OtuEntry e : entries) {
+                if (e.getName().startsWith(name)) {
+                    list.add(e);
+                }
+            }
+
+            if (list.size() <= 0) {
+                this.sendCustomMessage(sender, "otuser.notfound", name);
+                return true;
+            }
+
+            StringBuilder msgs = new StringBuilder();
+            msgs.append(this.getCustomMessage("otuser.list.top", name, Integer.toString(list.size())));
+            msgs.append("\n");
+
+            for (OtuEntry e : list) {
+
+                String mode;
+                switch (e.getMode()) {
+                    case OtuList.MODE_RUNA:
+                        mode = "runa";
+                        break;
+                    case OtuList.MODE_OTU_AND_RUNA:
+                        mode = "otu & runa";
+                        break;
+                    case OtuList.MODE_OTU:
+                    default:
+                        mode = "otu";
+                }
+
+                String source = e.getSource();
+                if (source == null) {
+                    source = "Unknown";
+                }
+
+                String creationDate;
+                if (e.getCreationDateString() != null) {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.getCustomMessage("otuser.list.timeformat", true));
+                    creationDate = e.getCreationDate().toLocalDateTime().atZone(this.getTimeZone()).format(formatter);
+                } else {
+                    creationDate = "Unknown";
+                }
+
+                msgs.append(this.getCustomMessage("otuser.list.item", e.getName(), mode, source, creationDate));
+                msgs.append("\n");
+            }
+
+            sender.sendMessage(msgs.toString());
         }
+
         return true;
     }
 
     public String getCustomMessage(String key, String... args) {
+        return this.getCustomMessage(key, false, args);
+    }
+
+    public String getCustomMessage(String key, boolean noPrefix, String... args) {
         String msg = this.messages.get(key);
         if(msg == null) {
             msg = "NULL:" + key;
         }
 
-        for(int i = 0; i < args.length;i++) {
+        for (int i = 0; i < args.length; i++) {
             msg = msg.replace("{%" + i + "}", args[i]);
         }
 
         String prefix = this.messages.get("command.prefix");
-        if(prefix != null && prefix.length() > 0) {
+        if (prefix != null && prefix.length() > 0 && !noPrefix) {
             msg = prefix + " " + msg;
         }
 
@@ -642,11 +712,11 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     public void sendCustomMessage(CommandSender player, String key, String... args) {
-        player.sendMessage(this.getCustomMessage(key, args));
+        player.sendMessage(this.getCustomMessage(key, false, args));
     }
 
     public void broadcastCustomMessage(String key, String... args) {
-        Server.getInstance().broadcastMessage(this.getCustomMessage(key, args));
+        Server.getInstance().broadcastMessage(this.getCustomMessage(key, false, args));
     }
 
     private boolean isNumber(String s) {
