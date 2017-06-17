@@ -1,4 +1,7 @@
 # Thanks http://blog.satotaichi.info/use_java_on_circleci/
+checkout:
+  post:
+    - chmod +x ./gradlew
 machine:
   timezone:
     Asia/Tokyo
