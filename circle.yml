@@ -1,0 +1,21 @@
+# Thanks http://blog.satotaichi.info/use_java_on_circleci/
+checkout:
+  post:
+    - chmod +x ./gradlew
+machine:
+  timezone:
+    Asia/Tokyo
+  environment:
+    GRADLE_OPTS: -Xmx4G -Dorg.gradle.daemon=true
+  java:
+    version: oraclejdk8
+  post:
+    - sudo service mysql stop
+    - sudo service postgresql stop
+dependencies:
+  override:
+    - ./gradlew -v
+    - ./gradlew testClasses
+test:
+  override:
+    - ./gradlew --full-stacktrace check

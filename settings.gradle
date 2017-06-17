@@ -2,5 +2,5 @@ rootProject.name = 'Nukkit-Plugins'
 
 include 'Sit'
 include 'SimpleOtu'
-include 'MoneGene'
+include 'TapSign'
 
