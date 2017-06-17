@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 public class MainClass extends PluginBase implements Listener {
 
-    private static int CUSTOM_MESSAGES_VERSION = 10;
+    private static int CUSTOM_MESSAGES_VERSION = 11;
 
     private static String DEFAULT_TIMEZONE = "Asia/Tokyo";
 
@@ -567,15 +567,23 @@ public class MainClass extends PluginBase implements Listener {
             }
 
             if (!this.isRuna(name)) {
+                OtuEntry entry = this.getOtuList().getEntry(name);
+                if (entry != null) {
+                    entry = new OtuEntry(name, OtuList.MODE_OTU_AND_RUNA, OffsetDateTime.now(), sender.getName());
+                } else {
+                    entry = new OtuEntry(name, OtuList.MODE_RUNA, OffsetDateTime.now(), sender.getName());
+                }
+
                 RunaAddEvent ev;
-                Server.getInstance().getPluginManager().callEvent(ev = new RunaAddEvent(this, this.getOtuList().getEntry(name)));
+                Server.getInstance().getPluginManager().callEvent(ev = new RunaAddEvent(this, entry));
                 if (ev.isCancelled()) {
                     this.sendCustomMessage(sender, "command.event.cancel");
 
                     return true;
                 }
 
-                this.setRuna(name, true, ev.getName());
+                //this.setRuna(name, true, ev.getName());
+                this.getOtuList().add(entry);
 
                 this.sendCustomMessage(sender, "runa.add.sender", name, sender.getName());
 
@@ -769,6 +777,7 @@ public class MainClass extends PluginBase implements Listener {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.getCustomMessage("otuser.list.timeformat", true));
                     //creationDate = e.getCreationDate().toLocalDateTime().atZone(this.getTimeZone()).format(formatter);
                     creationDate = e.getCreationDate().atZoneSameInstant(this.getTimeZone()).format(formatter);
+                    //creationDate = e.getCreationDate().atZoneSameInstant(this.getTimeZone()).toString();
                 } else {
                     creationDate = "Unknown";
                 }

@@ -125,7 +125,6 @@ public class OtuList {
         this.add(new OtuEntry(name, mode, creationDate, source));
     }
 
-
     public void load() {
         this.list = new LinkedHashMap<>();
 
