@@ -6,7 +6,7 @@ machine:
   timezone:
     Asia/Tokyo
   environment:
-    GRADLE_OPTS: -Xmx4G -Dorg.gradle.daemon=true -org.gradle.paralle=true
+    GRADLE_OPTS: -Xmx4G -Dorg.gradle.daemon=true -Dorg.gradle.paralle=true
   java:
     version: oraclejdk8
 general:
