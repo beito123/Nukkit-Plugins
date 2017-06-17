@@ -428,6 +428,15 @@ public class MainClass extends PluginBase implements Listener {
             }
 
             String name = args[0];
+            if (args.length > 1) {
+                StringBuilder nameBuilder = new StringBuilder();
+                for (String s : args) {
+                    nameBuilder.append(s);
+                    nameBuilder.append(" ");
+                }
+
+                name = nameBuilder.substring(0, nameBuilder.length() - 1);
+            }
 
             Player player = Server.getInstance().getPlayer(name);
             if (player != null) {
@@ -476,6 +485,15 @@ public class MainClass extends PluginBase implements Listener {
             }
 
             String name = args[0];
+            if (args.length > 1) {
+                StringBuilder nameBuilder = new StringBuilder();
+                for (String s : args) {
+                    nameBuilder.append(s);
+                    nameBuilder.append(" ");
+                }
+
+                name = nameBuilder.substring(0, nameBuilder.length() - 1);
+            }
 
             Player player = Server.getInstance().getPlayer(name);
             if (player != null) {
@@ -509,6 +527,15 @@ public class MainClass extends PluginBase implements Listener {
             }
 
             String name = args[0];
+            if (args.length > 1) {
+                StringBuilder nameBuilder = new StringBuilder();
+                for (String s : args) {
+                    nameBuilder.append(s);
+                    nameBuilder.append(" ");
+                }
+
+                name = nameBuilder.substring(0, nameBuilder.length() - 1);
+            }
 
             Player player = Server.getInstance().getPlayer(name);
             if (player != null) {
@@ -638,7 +665,18 @@ public class MainClass extends PluginBase implements Listener {
                 return true;
             }
 
-            String name = args[0].toLowerCase();
+            String name = args[0];
+            if (args.length > 1) {
+                StringBuilder nameBuilder = new StringBuilder();
+                for (String s : args) {
+                    nameBuilder.append(s);
+                    nameBuilder.append(" ");
+                }
+
+                name = nameBuilder.substring(0, nameBuilder.length() - 1);
+            }
+
+            name = name.toLowerCase();
 
             List<OtuEntry> list = new ArrayList<>();
 
@@ -682,7 +720,7 @@ public class MainClass extends PluginBase implements Listener {
                 String creationDate;
                 if (e.getCreationDateString() != null) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.getCustomMessage("otuser.list.timeformat", true));
-                    creationDate = e.getCreationDate().toLocalDateTime().atZone(this.getTimeZone()).format(formatter);
+                    //creationDate = e.getCreationDate().toLocalDateTime().atZone(this.getTimeZone()).format(formatter);
                     creationDate = e.getCreationDate().atZoneSameInstant(this.getTimeZone()).format(formatter);
                 } else {
                     creationDate = "Unknown";
