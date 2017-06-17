@@ -3,6 +3,8 @@ subprojects {
 
     sourceCompatibility = 1.8
 
+    jar.archiveName = name + ".jar"
+
     repositories {
         mavenCentral()
         maven {
@@ -17,5 +19,12 @@ subprojects {
 
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
+    }
+
+    build.doLast {
+        copy {
+            from jar.archivePath
+            into '../dist'
+        }
     }
 }
