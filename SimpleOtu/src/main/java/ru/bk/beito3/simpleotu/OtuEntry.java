@@ -4,12 +4,15 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 
 public class OtuEntry {
 
-    public final static String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss x";
+    //public final static String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss x";
+
+    public final static String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss xx";
 
     @SerializedName("name")
     @Expose
@@ -62,8 +65,7 @@ public class OtuEntry {
         this.mode = mode;
     }
     public OffsetDateTime getCreationDate() {
-        return OffsetDateTime.parse(this.creationDate, DateTimeFormatter.ofPattern(TIME_FORMAT));
-        //return DateTimeFormatter.ofPattern(TIME_FORMAT).parse(this.creationDate, OffsetDateTime::from);
+        return OffsetDateTime.parse(this.creationDate, DateTimeFormatter.ofPattern(TIME_FORMAT)).withOffsetSameInstant(ZoneOffset.UTC);
     }
 
     public void setCreationDate(OffsetDateTime creationDate) {

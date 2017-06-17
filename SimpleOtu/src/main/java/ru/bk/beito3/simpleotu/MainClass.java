@@ -156,7 +156,7 @@ public class MainClass extends PluginBase implements Listener {
     public ZoneId getTimeZone() {
         ZoneId timezone;
         try {
-            timezone = ZoneId.of("Asia/Tokyo");
+            timezone = ZoneId.of(this.timeZone);
         } catch (ZoneRulesException e) {
             timezone = ZoneId.systemDefault();
         }
@@ -176,7 +176,7 @@ public class MainClass extends PluginBase implements Listener {
 
         //load config
         Config config = new Config(new File(this.getDataFolder(), "config.yml"), Config.YAML);
-        config.setDefault(new ConfigSection(new LinkedHashMap<String, Object>() {
+        config.setDefault(new LinkedHashMap<String, Object>() {
             {
                 put("jail-pos", "0,0,0,world");
                 put("auto-release", true);
@@ -186,7 +186,7 @@ public class MainClass extends PluginBase implements Listener {
                 put("enable-unotu", true);
                 put("timezone", DEFAULT_TIMEZONE);
             }
-        }));
+        });
 
         this.jailPos = str2pos(config.getString("jail-pos"));
         this.autoRelease = config.getBoolean("auto-release", false);
@@ -315,7 +315,15 @@ public class MainClass extends PluginBase implements Listener {
 
         //save config
         Config config = new Config(new File(this.getDataFolder(), "config.yml"), Config.YAML);
+
         config.set("jail-pos", pos2str(this.jailPos));
+        config.set("auto-release", this.autoRelease);
+        config.set("notice-add", this.noticeAdd);
+        config.set("notice-remove", this.noticeRemove);
+        config.set("enable-active-players", this.enableActivePlayers);
+        config.set("enable-unotu", this.enableUnotu);
+        config.set("timezone", this.timeZone);
+
         config.save();
 
         this.saveList();
@@ -675,6 +683,7 @@ public class MainClass extends PluginBase implements Listener {
                 if (e.getCreationDateString() != null) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.getCustomMessage("otuser.list.timeformat", true));
                     creationDate = e.getCreationDate().toLocalDateTime().atZone(this.getTimeZone()).format(formatter);
+                    creationDate = e.getCreationDate().atZoneSameInstant(this.getTimeZone()).format(formatter);
                 } else {
                     creationDate = "Unknown";
                 }
