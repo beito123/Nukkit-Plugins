@@ -7,6 +7,7 @@ machine:
     Asia/Tokyo
   environment:
     GRADLE_OPTS: -Xmx4G -Dorg.gradle.daemon=true
+    CIRCLE_ARTIFACTS: ./
   java:
     version: oraclejdk8
   post:
