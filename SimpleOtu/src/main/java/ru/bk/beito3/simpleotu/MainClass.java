@@ -12,6 +12,7 @@ import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
+import ru.bk.beito3.simpleotu.event.*;
 
 import java.io.File;
 import java.time.OffsetDateTime;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
 
 public class MainClass extends PluginBase implements Listener {
 
-    private static int CUSTOM_MESSAGES_VERSION = 9;
+    private static int CUSTOM_MESSAGES_VERSION = 10;
 
     private static String DEFAULT_TIMEZONE = "Asia/Tokyo";
 
@@ -226,9 +227,9 @@ public class MainClass extends PluginBase implements Listener {
         this.otulist = new OtuList(new File(this.getDataFolder(), "list.json"), this.getLogger());
         this.otulist.load();
 
-        //Update otulist for v1.0.6 to new otulist for v1.1.0
+        //Update otulist for v1.0.6 to new otulist for v2.0.0
         if((new File(this.getDataFolder(), "list.yml")).exists()) {
-           updateOtuListTo110();
+            updateOtuListTo200();
         }
 
 
@@ -361,7 +362,7 @@ public class MainClass extends PluginBase implements Listener {
         return pos;
     }
 
-    public void updateOtuListTo110() {//update otulist from 1.0.6 to 1.1.0
+    public void updateOtuListTo200() {//update otulist from 1.0.6 to 2.0.0
 
         this.getLogger().notice("Start updating otulist for v1.0.6 to v1.1.0");
 
@@ -413,7 +414,7 @@ public class MainClass extends PluginBase implements Listener {
 
         this.saveList();
 
-        this.getLogger().notice("Updated otulist for v1.0.6 to v1.1.0");
+        this.getLogger().notice("Updated otulist for v1.0.6 to v2.0.0");
     }
 
     //Command
@@ -444,7 +445,15 @@ public class MainClass extends PluginBase implements Listener {
             }
 
             if (!this.isOtu(name)) {
-                this.getOtuList().addOtu(name, OtuList.MODE_OTU, OffsetDateTime.now(), sender.getName());
+                OtuAddEvent ev;
+                Server.getInstance().getPluginManager().callEvent(ev = new OtuAddEvent(this, new OtuEntry(name, OtuList.MODE_OTU, OffsetDateTime.now(), sender.getName())));
+                if (ev.isCancelled()) {
+                    this.sendCustomMessage(sender, "command.event.cancel");
+
+                    return true;
+                }
+
+                this.getOtuList().add(ev.getEntry());
 
                 this.sendCustomMessage(sender, "otu.add.sender", name, sender.getName());
 
@@ -460,7 +469,14 @@ public class MainClass extends PluginBase implements Listener {
                 this.saveList();
                 this.updateActivePlayers();
             } else if (!this.isEnableUnotu()) {
-                this.removeOtu(name);
+                OtuRemoveEvent ev;
+                Server.getInstance().getPluginManager().callEvent(ev = new OtuRemoveEvent(this, this.getOtuList().getEntry(name)));
+                if (ev.isCancelled()) {
+                    this.sendCustomMessage(sender, "command.event.cancel");
+
+                    return true;
+                }
+                this.removeOtu(ev.getEntry().getName());
 
                 this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
 
@@ -501,7 +517,15 @@ public class MainClass extends PluginBase implements Listener {
             }
 
             if (this.isOtu(name)) {
-                this.removeOtu(name);
+                OtuRemoveEvent ev;
+                Server.getInstance().getPluginManager().callEvent(ev = new OtuRemoveEvent(this, this.getOtuList().getEntry(name)));
+                if (ev.isCancelled()) {
+                    this.sendCustomMessage(sender, "command.event.cancel");
+
+                    return true;
+                }
+
+                this.removeOtu(ev.getEntry().getName());
 
                 this.sendCustomMessage(sender, "otu.remove.sender", sender.getName(), name);
 
@@ -543,7 +567,15 @@ public class MainClass extends PluginBase implements Listener {
             }
 
             if (!this.isRuna(name)) {
-                this.setRuna(name, true, sender.getName());
+                RunaAddEvent ev;
+                Server.getInstance().getPluginManager().callEvent(ev = new RunaAddEvent(this, this.getOtuList().getEntry(name)));
+                if (ev.isCancelled()) {
+                    this.sendCustomMessage(sender, "command.event.cancel");
+
+                    return true;
+                }
+
+                this.setRuna(name, true, ev.getName());
 
                 this.sendCustomMessage(sender, "runa.add.sender", name, sender.getName());
 
@@ -555,6 +587,14 @@ public class MainClass extends PluginBase implements Listener {
                     this.broadcastCustomMessage("runa.add.notice", sender.getName(), name);
                 }
             } else {
+                RunaRemoveEvent ev;
+                Server.getInstance().getPluginManager().callEvent(ev = new RunaRemoveEvent(this, this.getOtuList().getEntry(name)));
+                if (ev.isCancelled()) {
+                    this.sendCustomMessage(sender, "command.event.cancel");
+
+                    return true;
+                }
+
                 this.setRuna(name, false, sender.getName());
 
                 this.sendCustomMessage(sender, "runa.remove.sender", name, sender.getName());
@@ -571,7 +611,6 @@ public class MainClass extends PluginBase implements Listener {
             this.saveList();
             this.updateActivePlayers();
         } else if (cmd.equals("otup")) {
-
             Position pos;
 
             if (sender instanceof ConsoleCommandSender || args.length > 0) {
@@ -599,6 +638,14 @@ public class MainClass extends PluginBase implements Listener {
                 pos = new Position(x, y, z, level).floor().add(0.5, 0, 0.5);
             } else {
                 pos = ((Player) sender).getPosition().floor().add(0.5, 0, 0.5);
+            }
+
+            OtupChangeEvent ev;
+            Server.getInstance().getPluginManager().callEvent(ev = new OtupChangeEvent(this, this.getJailPos(), pos, sender));
+            if (ev.isCancelled()) {
+                this.sendCustomMessage(sender, "command.event.cancel");
+
+                return true;
             }
 
             this.setJailPos(pos);
