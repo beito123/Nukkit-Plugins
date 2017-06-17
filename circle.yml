@@ -17,7 +17,7 @@ general:
     - "./dist/"
 compile:
   override:
-    - gradlew build
+    - ./gradlew build
 dependencies:
   override:
     - ./gradlew -v
