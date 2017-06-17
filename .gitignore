@@ -4,8 +4,7 @@
 # Log file
 *.log
 
-# Package Files #
-*.jar
+# Package Files
 *.zip
 
 # for IntelliJ IDEA
