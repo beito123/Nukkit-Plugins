@@ -7,6 +7,13 @@ Run the following command to build plugins.
 
 	./gradlew build
 
+## Download (dev version)
+You can download from the under links. They will download the latest version.
+
+Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/Sit.jar)
+
+SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/SimpleOtu.jar)
+
 ## License
 These plugins are the under LGPLv3 license.
 
@@ -31,6 +38,13 @@ These plugins are the under LGPLv3 license.
 
 
 	./gradlew build
+
+## Download (開発版)
+以下のリンクからダウンロードできます。最新のバージョンがダウンロードされます。
+
+Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/Sit.jar)
+
+SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/SimpleOtu.jar)
 
 ### License
 これらのプラグインはLGPLv3ライセンスです。
