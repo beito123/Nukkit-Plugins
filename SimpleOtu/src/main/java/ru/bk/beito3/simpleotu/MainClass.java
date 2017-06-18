@@ -248,21 +248,21 @@ public class MainClass extends PluginBase {
                 put("otu", new LinkedHashMap<String, CommandParameter[]>(){
                     {
                         put("otu", new CommandParameter[]{
-                            new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
+                                new CommandParameter("player", CommandParameter.ARG_TYPE_RAW_TEXT, false)
                         });
                     }
                 });
                 put("unotu", new LinkedHashMap<String, CommandParameter[]>(){
                     {
                         put("unotu", new CommandParameter[]{
-                                new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
+                                new CommandParameter("player", CommandParameter.ARG_TYPE_RAW_TEXT, false)
                         });
                     }
                 });
                 put("runa", new LinkedHashMap<String, CommandParameter[]>(){
                     {
                         put("runa", new CommandParameter[]{
-                            new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
+                                new CommandParameter("player", CommandParameter.ARG_TYPE_RAW_TEXT, false)
                         });
                     }
                 });
@@ -285,7 +285,7 @@ public class MainClass extends PluginBase {
                 put("otuser", new LinkedHashMap<String, CommandParameter[]>(){
                     {
                         put("otuser", new CommandParameter[]{
-                                new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false)
+                                new CommandParameter("player", CommandParameter.ARG_TYPE_RAW_TEXT, false)
                         });
                     }
                 });
