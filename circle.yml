@@ -46,7 +46,7 @@ jobs:
               destination: dist/
 
           - save_cache:
-              key: projectname-{{ .Branch }}-{{ checksum "build.gradle" }}
+              key: nukkit-plugins-{{ .Branch }}-{{ checksum "build.gradle" }}
               paths:
                 - "~/.gradle/4.0"
                 - "~/.gradle/buildOutputCleanup"
