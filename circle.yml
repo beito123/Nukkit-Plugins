@@ -22,11 +22,11 @@ jobs:
               key: nukkit-plugins-{{ .Branch }}-{{ checksum "build.gradle" }}
 
           - run:
-            name: gradlewに実行権限を与える
+            name: give gradlew x permission
             command: chmod +x ./gradlew
 
           - run:
-            name: バージョン表示と依存関係のダウンロード
+            name: Show version and download dependencies
             command: ./gradlew -v
 
           - run:
@@ -49,4 +49,3 @@ jobs:
                 - "~/.gradle/wrapper/dists/gradle-4.0-bin"
                 - "~/.gradle/caches/modules-2"
                 - "~/.m2"
-
