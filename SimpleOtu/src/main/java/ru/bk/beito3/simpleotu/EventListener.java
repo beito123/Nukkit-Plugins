@@ -129,6 +129,7 @@ public class EventListener implements Listener {
                         case "/otu":
                         case "/unotu":
                         case "/runa":
+                        case "/otuser":
                         case "/register":
                         case "/login":
                             break;
