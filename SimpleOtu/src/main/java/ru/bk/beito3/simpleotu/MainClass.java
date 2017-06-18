@@ -6,7 +6,6 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.command.data.CommandParameter;
-import cn.nukkit.event.Listener;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginBase;
@@ -22,7 +21,7 @@ import java.time.zone.ZoneRulesException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class MainClass extends PluginBase implements Listener {
+public class MainClass extends PluginBase {
 
     private static int CUSTOM_MESSAGES_VERSION = 11;
 
