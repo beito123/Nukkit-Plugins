@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       # see https://hub.docker.com/_/java/
-      - image: java:8
+      - image: circleci/java:8
 
     environment:
       GRADLE_OPTS: -Xmx4G -Dorg.gradle.daemon=true -Dorg.gradle.paralle=true
