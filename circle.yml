@@ -37,6 +37,10 @@ jobs:
               name: Test
               command: ./gradlew --full-stacktrace check
 
+          - run:
+              name: Show files
+              command: pwd;find . | sort | sed '1d;s/^\.//;s/\/\([^/]*\)$/|--\1/;s/\/[^/|]*/|  /g'
+
           - store_artifacts:
               path: ./dist/
               destination: dist/
