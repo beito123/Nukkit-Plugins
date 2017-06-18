@@ -37,6 +37,10 @@ jobs:
               name: Test
               command: ./gradlew --full-stacktrace check
 
+          - run:
+              name: Show files
+              command: tree -L 3
+
           - store_artifacts:
               path: ./dist/
               destination: dist/
