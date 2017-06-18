@@ -22,24 +22,24 @@ jobs:
               key: nukkit-plugins-{{ .Branch }}-{{ checksum "build.gradle" }}
 
           - run:
-            name: give gradlew x permission
-            command: chmod +x ./gradlew
+              name: Give gradlew x permission
+              command: chmod +x ./gradlew
 
           - run:
-            name: Show version and download dependencies
-            command: ./gradlew -v
+              name: Show version and download dependencies
+              command: ./gradlew -v
 
           - run:
-            name: Build
-            command: ./gradlew build
+              name: Build
+              command: ./gradlew build
 
           - run:
-            name: Test
-            command: ./gradlew --full-stacktrace check
+              name: Test
+              command: ./gradlew --full-stacktrace check
 
           - store_artifacts:
-            path: ./dist/
-            destination: dist/
+              path: ./dist/
+              destination: dist/
 
           - save_cache:
               key: projectname-{{ .Branch }}-{{ checksum "build.gradle" }}
