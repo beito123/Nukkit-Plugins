@@ -1,8 +1,9 @@
+#Use Circle CI 2.0! very faster!
 version: 2
+
 jobs:
   build:
     docker:
-      # see https://hub.docker.com/_/java/
       - image: circleci/java:8
 
     working_directory: ~/workspace
@@ -10,18 +11,21 @@ jobs:
     environment:
       GRADLE_OPTS: -Xmx4G -Dorg.gradle.daemon=true -Dorg.gradle.paralle=true
 
+    #build steps
     steps:
+          #Checkotu to working_directory
           - checkout
 
+          #Restore cache (if exists no changed cache)
           - restore_cache:
               key: nukkit-plugins-{{ .Branch }}-{{ checksum "build.gradle" }}
 
           - run:
-              name: Give gradlew x permission
+              name: Give permission for running to gradlew
               command: chmod +x ./gradlew
 
           - run:
-              name: Show version and download dependencies
+              name: Show version. And if not exists gradle-bin, download
               command: ./gradlew -v
 
           - run:
@@ -32,11 +36,19 @@ jobs:
               name: Test
               command: ./gradlew --full-stacktrace check
 
+          #Thanks from http://qiita.com/yone098@github/items/bba8a42de6b06e40983b
+          #- run:
+          #    name: Show dirs and files (instead of tree command)
+          #    command: http://qiita.com/yone098@github/items/bba8a42de6b06e40983b
+
+          #Save artifacts(.jar, etc..)
           - store_artifacts:
               path: ./dist/
               destination: dist/
 
+          #Save Cache
           - save_cache:
+              #Todo: add build.gradle of Sit or SimpleOtu etc..
               key: nukkit-plugins-{{ .Branch }}-{{ checksum "build.gradle" }}
               paths:
                 - "~/.gradle/4.0"
