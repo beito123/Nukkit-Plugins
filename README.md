@@ -14,6 +14,12 @@ Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plu
 
 SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/SimpleOtu.jar)
 
+FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/FixBehavior.jar)
+
+IF can't download, get download links from the under link.
+
+[Get download links](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts)
+
 ## License
 These plugins are the under LGPLv3 license.
 
@@ -45,6 +51,12 @@ These plugins are the under LGPLv3 license.
 Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/Sit.jar)
 
 SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/SimpleOtu.jar)
+
+FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/FixBehavior.jar)
+
+もしダウンロードできない場合は、以下のリンクからダウンロードリンクを取得してください。
+
+[Get download links](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts)
 
 ### License
 これらのプラグインはLGPLv3ライセンスです。
