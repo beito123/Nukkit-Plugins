@@ -1,0 +1,5 @@
+name: FixBehavior
+version: 1.0.0
+author: beito
+api: ["1.0.0"]
+main: ru.bk.beito3.fixbehavior.MainClass

@@ -3,4 +3,5 @@ rootProject.name = 'Nukkit-Plugins'
 include 'Sit'
 include 'SimpleOtu'
 include 'TapSign'
+include 'FixBehavior'
 
