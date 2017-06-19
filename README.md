@@ -10,11 +10,11 @@ Run the following command to build plugins.
 ## Download (dev version)
 You can download from the under links. They will download the latest version.
 
-Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/Sit.jar)
+Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/workspace/dist/Sit.jar)
 
-SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/SimpleOtu.jar)
+SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/workspace/dist/SimpleOtu.jar)
 
-FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/FixBehavior.jar)
+FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/workspace/dist/FixBehavior.jar)
 
 IF can't download, get download links from the under link.
 
@@ -48,11 +48,11 @@ These plugins are the under LGPLv3 license.
 ## Download (開発版)
 以下のリンクからダウンロードできます。最新のバージョンがダウンロードされます。
 
-Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/Sit.jar)
+Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/workspace/dist/Sit.jar)
 
-SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/SimpleOtu.jar)
+SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/workspace/dist/SimpleOtu.jar)
 
-FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/ubuntu/Nukkit-Plugins/dist/FixBehavior.jar)
+FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/workspace/dist/FixBehavior.jar)
 
 もしダウンロードできない場合は、以下のリンクからダウンロードリンクを取得してください。
 
