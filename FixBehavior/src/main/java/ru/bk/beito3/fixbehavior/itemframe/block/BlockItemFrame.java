@@ -1,4 +1,4 @@
-package ru.bk.beito3.fixbehavior.block;
+package ru.bk.beito3.fixbehavior.itemframe.block;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
@@ -35,7 +35,7 @@ public class BlockItemFrame extends cn.nukkit.block.BlockItemFrame {//Black hack
     }
 
     public Item toItem() {
-        return new ru.bk.beito3.fixbehavior.item.ItemItemFrame();
+        return new ru.bk.beito3.fixbehavior.itemframe.item.ItemItemFrame();
     }
 }
 

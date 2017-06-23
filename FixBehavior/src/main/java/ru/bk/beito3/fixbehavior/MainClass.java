@@ -1,29 +1,38 @@
 package ru.bk.beito3.fixbehavior;
 
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemPotato;
 import cn.nukkit.plugin.PluginBase;
-import ru.bk.beito3.fixbehavior.block.BlockItemFrame;
-import ru.bk.beito3.fixbehavior.item.ItemItemFrame;
+import ru.bk.beito3.fixbehavior.itemframe.block.BlockItemFrame;
+import ru.bk.beito3.fixbehavior.itemframe.item.ItemItemFrame;
 
 import java.lang.reflect.Constructor;
 
 public class MainClass extends PluginBase implements Listener {
 
+    private final static boolean ENABLE_ITEMFRAME = true;
+    private final static boolean ENABLE_POTATO = true;
+
     @Override
     public void onEnable() {
-        this.fixPotatoBug();
+        if (ENABLE_POTATO) {
+            this.fixPotatoBug();
+        }
 
-        this.registerItem(new ItemItemFrame(), new BlockItemFrame(), true);
+        if (ENABLE_ITEMFRAME) {
+            this.registerItem(new ItemItemFrame(), new BlockItemFrame(), true);
+            this.registerEvents(new ru.bk.beito3.fixbehavior.itemframe.EventListener());
+        }
     }
 
-    public void fixPotatoBug() {
+    private void fixPotatoBug() {
         this.registerItem(new ItemPotato(), null, true);
     }
 
-    public void registerItem(Item item, Block block, boolean force) {
+    private void registerItem(Item item, Block block, boolean force) {
         if (Item.list[item.getId()] != null && !force) {
             return;
         }
@@ -31,8 +40,15 @@ public class MainClass extends PluginBase implements Listener {
         Item.list[item.getId()] = item.getClass();
 
         if (block != null) {
-            Block.list[block.getId()] = block.getClass();
             Item.list[block.getId()] = block.getClass();
+            Block.list[block.getId()] = block.getClass();
+
+            Block.solid[block.getId()] = block.isSolid();
+            Block.transparent[block.getId()] = block.isTransparent();
+            Block.hardness[block.getId()] = block.getHardness();
+            Block.light[block.getId()] = block.getLightLevel();
+            Block.lightFilter[block.getId()] = 1;//
+
 
             Class<? extends Block> c = block.getClass();
             try {
@@ -45,6 +61,9 @@ public class MainClass extends PluginBase implements Listener {
                 this.getLogger().error("Could not register a block to nukkit.block.Block", e);
             }
         }
+    }
 
+    private void registerEvents(Listener listener) {
+        Server.getInstance().getPluginManager().registerEvents(listener, this);
     }
 }

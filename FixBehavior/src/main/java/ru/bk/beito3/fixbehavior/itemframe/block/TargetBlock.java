@@ -1,4 +1,4 @@
-package ru.bk.beito3.fixbehavior.block;
+package ru.bk.beito3.fixbehavior.itemframe.block;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;

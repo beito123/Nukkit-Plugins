@@ -1,6 +1,6 @@
-package ru.bk.beito3.fixbehavior.item;
+package ru.bk.beito3.fixbehavior.itemframe.item;
 
-import ru.bk.beito3.fixbehavior.block.BlockItemFrame;
+import ru.bk.beito3.fixbehavior.itemframe.block.BlockItemFrame;
 
 public class ItemItemFrame extends cn.nukkit.item.ItemItemFrame {
 
