@@ -18,6 +18,10 @@ public class OtuEntry {
     @Expose
     private String name;
 
+    @SerializedName("mode")
+    @Expose
+    private int mode;
+
     @SerializedName("creationDate")
     @Expose
     private String creationDate;
@@ -26,19 +30,24 @@ public class OtuEntry {
     @Expose
     private String source;
 
-    @SerializedName("mode")
+    @SerializedName("reason")
     @Expose
-    private int mode;
+    private String reason;
+
 
     public OtuEntry(String name, int mode) {
         this(name, mode, null, null);
     }
 
     public OtuEntry(String name, int mode, OffsetDateTime creationDate) {
-        this(name, mode, creationDate, null);
+        this(name, mode, creationDate, null, null);
     }
 
     public OtuEntry(String name, int mode, OffsetDateTime creationDate, String source) {
+        this(name, mode, creationDate, source, null);
+    }
+
+    public OtuEntry(String name, int mode, OffsetDateTime creationDate, String source, String reason) {
         super();
         this.name = name.toLowerCase();
         this.mode = mode;
@@ -47,6 +56,7 @@ public class OtuEntry {
             this.creationDate = creationDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT));
         }
         this.source = source;
+        this.reason = reason;
     }
 
     public String getName() {
@@ -92,17 +102,6 @@ public class OtuEntry {
         this.source = source;
     }
 
-
-    public LinkedHashMap<String, String> getMap() {
-        LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        map.put("name", this.getName());
-        map.put("mode", String.valueOf(this.getMode()));
-        map.put("creationDate", this.getCreationDateString());
-        map.put("source", this.getSource());
-
-        return map;
-    }
-
     public static OtuEntry fromMap(LinkedHashMap<String, String> map) {//bad
         String name = map.get("name");
         int mode = Integer.parseInt(map.getOrDefault("mode", "0"));
@@ -117,7 +116,31 @@ public class OtuEntry {
             source = map.get("source");
         }
 
-        return new OtuEntry(name, mode, creationDate, source);
+        String reason = null;
+        if (map.containsKey("reason")) {
+            source = map.get("reason");
+        }
+
+        return new OtuEntry(name, mode, creationDate, source, reason);
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public LinkedHashMap<String, String> getMap() {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        map.put("name", this.getName());
+        map.put("mode", String.valueOf(this.getMode()));
+        map.put("creationDate", this.getCreationDateString());
+        map.put("source", this.getSource());
+        map.put("reason", this.getReason());
+
+        return map;
     }
 
     @Override
@@ -126,6 +149,8 @@ public class OtuEntry {
                 "name=" + this.name +
                 ", mode=" + this.mode +
                 ", creationDate=" + this.creationDate +
-                ", source=" + this.source + ")";
+                ", source=" + this.source +
+                ", reason=" + this.reason + ")";
     }
+
 }

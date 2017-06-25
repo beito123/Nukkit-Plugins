@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -89,6 +90,14 @@ public class OtuList {
         this.getEntry(name).setMode(mode);
     }
 
+    public String getReason(String name) {
+        return this.getEntry(name).getReason();
+    }
+
+    public void setReason(String name, String reason) {
+        this.getEntry(name).setReason(reason);
+    }
+
     public boolean isOtu(String name) {
         int mode = this.getMode(name);
 
@@ -156,14 +165,19 @@ public class OtuList {
         }
 
         try {
-            Utils.writeFile(this.file, new Gson().toJson(this.list));
+            //Utils.writeFile(this.file, new Gson().toJson(this.list));
 
             List<LinkedHashMap<String, String>> entries = new LinkedList<>();
             for(Map.Entry<String, OtuEntry> entry : this.list.entrySet()) {
                 entries.add(entry.getValue().getMap());
             }
 
-            Utils.writeFile(this.file, new ByteArrayInputStream(new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create().toJson(entries).getBytes()));
+            Utils.writeFile(this.file, new ByteArrayInputStream(
+                    new GsonBuilder()
+                            .setPrettyPrinting()//format print
+                            .excludeFieldsWithoutExposeAnnotation()//use annotation
+                            .create().toJson(entries)//convert to json
+                            .getBytes(StandardCharsets.UTF_8)));//convert to UTF-8
         } catch (IOException e) {
             this.logger.error("Could not save the otulist to " + this.file.getAbsolutePath(), e);
         }

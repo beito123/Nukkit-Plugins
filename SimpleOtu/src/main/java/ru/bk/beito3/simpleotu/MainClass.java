@@ -23,11 +23,16 @@ import java.util.regex.Pattern;
 
 public class MainClass extends PluginBase {
 
-    private static int CUSTOM_MESSAGES_VERSION = 11;
+    private static int CUSTOM_MESSAGES_VERSION = 15;
 
     private static String DEFAULT_TIMEZONE = "Asia/Tokyo";
 
     private Map<String, String> messages = new HashMap<>();
+    private List<String> forceUpdateMessages = new ArrayList<String>() {{
+        //11 to 12
+        add("otuser.list.item");
+        add("otuser.list.timeformat");
+    }};
 
     private Position jailPos;
     private boolean autoRelease = false;
@@ -72,7 +77,7 @@ public class MainClass extends PluginBase {
         this.setRuna(name, b, null);
     }
 
-    public void setRuna(String name, boolean b, String sender) {
+    public void setRuna(String name, boolean b, String sender) {//bad
         if (!b) {//remove
             if (this.getOtuList().getMode(name) == OtuList.MODE_OTU_AND_RUNA){
                 this.getOtuList().setMode(name, OtuList.MODE_OTU);
@@ -81,6 +86,20 @@ public class MainClass extends PluginBase {
             }
         } else {//add
             this.getOtuList().addOtu(name, OtuList.MODE_RUNA, OffsetDateTime.now(), sender);
+        }
+    }
+
+    public String getReason(String name) {
+        if (this.isOtu(name) || this.isRuna(name)) {
+            return this.getOtuList().getReason(name);
+        }
+
+        return null;
+    }
+
+    public void setReason(String name, String reason) {
+        if (this.isOtu(name) || this.isRuna(name)) {
+            this.getOtuList().setReason(name, reason);
         }
     }
 
@@ -211,6 +230,13 @@ public class MainClass extends PluginBase {
 
             msgList.setDefault(newConfig.getRootSection());//fill
 
+            ConfigSection section = msgList.getRootSection();
+            for (String key : this.forceUpdateMessages) {
+                //msgList.set(key, newConfig.get(key));
+                section.put(key, newConfig.getString(key));//Blame Nukkit :P
+            }
+            msgList.setAll(section);
+
             msgList.set("version", CUSTOM_MESSAGES_VERSION);
 
             this.getLogger().notice("Updated messages.properties");
@@ -231,7 +257,6 @@ public class MainClass extends PluginBase {
             updateOtuListTo200();
         }
 
-
         //command
 
         Map<String, String> cmdDes = new LinkedHashMap<String, String>(){{
@@ -241,6 +266,7 @@ public class MainClass extends PluginBase {
             put("otup", MainClass.this.getCustomMessage("command.otup.description"));
             put("otulist", MainClass.this.getCustomMessage("command.otulist.description"));
             put("otuser", MainClass.this.getCustomMessage("command.otuser.description"));
+            put("otur", MainClass.this.getCustomMessage("command.otur.description"));
         }};
 
         Map<String, Map<String, CommandParameter[]>> cmdParams = new LinkedHashMap<String, Map<String, CommandParameter[]>>(){
@@ -286,6 +312,14 @@ public class MainClass extends PluginBase {
                     {
                         put("otuser", new CommandParameter[]{
                                 new CommandParameter("player", CommandParameter.ARG_TYPE_RAW_TEXT, false)
+                        });
+                    }
+                });
+                put("otur", new LinkedHashMap<String, CommandParameter[]>() {
+                    {
+                        put("otur", new CommandParameter[]{
+                                new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false),
+                                new CommandParameter("reason", CommandParameter.ARG_TYPE_RAW_TEXT, false)
                         });
                     }
                 });
@@ -768,7 +802,12 @@ public class MainClass extends PluginBase {
 
                 String source = e.getSource();
                 if (source == null) {
-                    source = "Unknown";
+                    source = this.getCustomMessage("otuser.unknown.source", true);
+                }
+
+                String reason = e.getReason();
+                if (reason == null) {
+                    reason = this.getCustomMessage("otuser.unknown.reason", true);
                 }
 
                 String creationDate;
@@ -778,14 +817,42 @@ public class MainClass extends PluginBase {
                     creationDate = e.getCreationDate().atZoneSameInstant(this.getTimeZone()).format(formatter);
                     //creationDate = e.getCreationDate().atZoneSameInstant(this.getTimeZone()).toString();
                 } else {
-                    creationDate = "Unknown";
+                    creationDate = this.getCustomMessage("otuser.unknown.date", true);
                 }
 
-                msgs.append(this.getCustomMessage("otuser.list.item", e.getName(), mode, source, creationDate));
+                msgs.append(this.getCustomMessage("otuser.list.item", e.getName(), mode, source, creationDate, reason));
                 msgs.append("\n");
             }
 
             sender.sendMessage(msgs.toString());
+        } else if (cmd.equals("otur")) {
+            if (args.length <= 1) {
+                this.sendCustomMessage(sender, "command.notEnoughParam");
+                return true;
+            }
+
+            int lastIndex = args.length - 1;
+
+            String name = args[0];
+            if (args.length > 2) {
+                StringBuilder nameBuilder = new StringBuilder();
+                for (int i = 0; i < lastIndex; i++) {
+                    nameBuilder.append(args[i]);
+                    nameBuilder.append(" ");
+                }
+
+                name = nameBuilder.substring(0, nameBuilder.length() - 1);
+            }
+
+            String reason = args[lastIndex];
+
+            if (this.isOtu(name) || this.isRuna(name)) {//TODO: implements a event
+                this.setReason(name, reason);
+
+                this.sendCustomMessage(sender, "otur.set-reason", name, reason);
+            } else {
+                this.sendCustomMessage(sender, "otur.notfound", name);
+            }
         }
 
         return true;

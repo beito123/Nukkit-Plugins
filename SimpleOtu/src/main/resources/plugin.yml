@@ -1,5 +1,5 @@
 name: SimpleOtu
-version: 2.0.0
+version: 2.1.0
 author: beito
 api: ["1.0.0"]
 main: ru.bk.beito3.simpleotu.MainClass
@@ -28,6 +28,10 @@ commands:
   otuser:
     description: "Search the otu or runa player"
     usage: "/otuser <player>"
+    permission: otu.command.otuser
+  otur:
+    description: "Set reason of otu or runa"
+    usage: "/otur <player> <reason>"
     permission: otu.command.otuser
 
 permissions:

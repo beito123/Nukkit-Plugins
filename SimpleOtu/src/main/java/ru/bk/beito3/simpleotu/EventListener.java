@@ -31,6 +31,21 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        if (this.plugin.isActivePlayer(player)) {
+            if (this.plugin.isOtu(player.getName()) || this.plugin.isRuna(player.getName())) {
+                String reason = this.plugin.getReason(player.getName());
+                if (reason == null) {
+                    reason = this.plugin.getCustomMessage("otur.notice.unknown.reason", true);
+                }
+
+                this.plugin.sendCustomMessage(player, "otur.notice.to-message", reason, player.getName());
+            }
+        }
+    }
+
+    @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if(this.plugin.isActivePlayer(player)) {
