@@ -29,7 +29,9 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     private void fixPotatoBug() {
-        this.registerItem(new ItemPotato(), null, true);
+        if (Item.list[Item.POTATO] == null) {
+            this.registerItem(new ItemPotato(), null, true);
+        }
     }
 
     private void registerItem(Item item, Block block, boolean force) {

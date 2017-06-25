@@ -1,8 +1,6 @@
 package ru.bk.beito3.fixbehavior.itemframe;
 
 import cn.nukkit.Player;
-import cn.nukkit.block.Block;
-import cn.nukkit.block.BlockItemFrame;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntityItemFrame;
 import cn.nukkit.event.EventHandler;
@@ -30,9 +28,8 @@ public class EventListener implements Listener {
 
             Level level = player.getLevel();
 
-            Block block = level.getBlock(pos);
             BlockEntity tile = level.getBlockEntity(pos);
-            if (tile instanceof BlockEntityItemFrame && block instanceof BlockItemFrame) {
+            if (tile instanceof BlockEntityItemFrame) {
                 BlockEntityItemFrame itemframe = (BlockEntityItemFrame) tile;
 
                 if (itemframe.getItem().getId() == Item.AIR) {//Break the ItemFrame

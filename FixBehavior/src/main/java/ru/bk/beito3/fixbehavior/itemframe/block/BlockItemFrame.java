@@ -25,7 +25,8 @@ public class BlockItemFrame extends cn.nukkit.block.BlockItemFrame {//Black hack
     @Override
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_NORMAL) {
-            if (this.getSide(getFacing()) instanceof BlockFlowable) {
+            Block block = this.getSide(getFacing());
+            if (block.getId() == Block.AIR || block instanceof BlockFlowable) {
                 this.level.useBreakOn(this);
                 return type;
             }
