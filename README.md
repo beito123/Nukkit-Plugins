@@ -1,5 +1,5 @@
 # Nukkit-Plugins
-These plugins are made for the certain server.
+These plugins are made for a certain server.
 
 ## Build
 Run the following command to build plugins.
@@ -35,7 +35,10 @@ These plugins are the under LGPLv3 license.
 
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	
 
+
+**Special thanks**: okuda, Players in a certain server
 ## Nukkit-Plugins (JP)
 これらのプラグインはとあるサーバーのために作られたものです。
 
@@ -73,3 +76,6 @@ FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nu
 
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	
+
+**謝辞**: okudaさん, とあるサーバーのプレーヤーの皆さん
