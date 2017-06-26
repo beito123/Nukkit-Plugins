@@ -4,7 +4,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/java:8
+      - image: circleci/openjdk:8-jdk-browsers
 
     working_directory: ~/workspace
 
@@ -36,7 +36,8 @@ jobs:
               name: Test
               command: ./gradlew --full-stacktrace check
 
-          ##Thanks from http://qiita.com/yone098@github/items/bba8a42de6b06e40983b
+          #Thanks from http://qiita.com/yone098@github/items/bba8a42de6b06e40983b
+
           - run:
               name: Show dirs and files (instead of tree command)
               command: http://qiita.com/yone098@github/items/bba8a42de6b06e40983b
