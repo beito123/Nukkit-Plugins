@@ -51,7 +51,7 @@ jobs:
               #Todo: add build.gradle of Sit or SimpleOtu etc..
               key: nukkit-plugins-{{ .Branch }}-{{ checksum "build.gradle" }}
               paths:
-                - "~/.gradle/4.0"
+                - "~/.gradle/caches/4.0"
                 - "~/.gradle/wrapper/dists/gradle-4.0-bin"
                 - "~/.gradle/caches/modules-2"
                 - "~/.gradle/buildOutputCleanup"
