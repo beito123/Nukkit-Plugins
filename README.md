@@ -16,7 +16,7 @@ SimpleOtu: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukk
 
 FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/workspace/dist/FixBehavior.jar)
 
-IF can't download, get download links from the under link.
+IF you can't download, get download links from the under link.
 
 [Get download links](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts)
 
