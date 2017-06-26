@@ -844,6 +844,11 @@ public class MainClass extends PluginBase {
                 name = nameBuilder.substring(0, nameBuilder.length() - 1);
             }
 
+            Player player = Server.getInstance().getPlayer(name);
+            if (player != null) {
+                name = player.getName();
+            }
+
             String reason = args[lastIndex];
 
             if (this.isOtu(name) || this.isRuna(name)) {//TODO: implements a event
