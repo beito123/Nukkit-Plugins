@@ -37,9 +37,9 @@ jobs:
               command: ./gradlew --full-stacktrace check
 
           #Thanks from http://qiita.com/yone098@github/items/bba8a42de6b06e40983b
-          - run:
-              name: Show dirs and files (instead of tree command)
-              command: pwd ../;find ../ | sort | sed '1d;s/^\.//;s/\/\([^/]*\)$/|--\1/;s/\/[^/|]*/|  /g'
+          #- run:
+          #    name: Show dirs and files (instead of tree command)
+          #    command: pwd ../;find ../ | sort | sed '1d;s/^\.//;s/\/\([^/]*\)$/|--\1/;s/\/[^/|]*/|  /g'
 
           #Save artifacts(.jar, etc..)
           - store_artifacts:
