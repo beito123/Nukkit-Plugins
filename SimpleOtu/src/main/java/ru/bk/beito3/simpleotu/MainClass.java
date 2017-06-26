@@ -318,8 +318,8 @@ public class MainClass extends PluginBase {
                 put("otur", new LinkedHashMap<String, CommandParameter[]>() {
                     {
                         put("otur", new CommandParameter[]{
-                                new CommandParameter("player", CommandParameter.ARG_TYPE_STRING, false),
-                                new CommandParameter("reason", CommandParameter.ARG_TYPE_RAW_TEXT, false)
+                                new CommandParameter("player", CommandParameter.ARG_TYPE_RAW_TEXT, false),
+                                new CommandParameter("reason", CommandParameter.ARG_TYPE_RAW_TEXT, true)//Blame mcpe :P
                         });
                     }
                 });
