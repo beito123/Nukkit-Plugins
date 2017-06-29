@@ -700,7 +700,6 @@ public class MainClass extends PluginBase {
                     pos.getLevel().getFolderName());
 
         } else if (cmd.equals("otulist")) {
-
             String type = "otu";
             int page = 0;
 
@@ -716,7 +715,6 @@ public class MainClass extends PluginBase {
             }
 
             List<String> list;
-            this.getLogger().debug("test:" + type);
             if (type.equals("runa") || type.equals("r")) {
                 type = "runa";
                 list = this.getOtuList().getRunaNames();
@@ -725,12 +723,14 @@ public class MainClass extends PluginBase {
                 list = this.getOtuList().getOtuNames();
             }
 
-
-            int max = Math.max(0, (list.size() / 20));
+            int max = Math.max(0, ((list.size() - 1) / 20));
 
             page = Math.min(page, max);
 
-            String top = this.getCustomMessage("otulist." + type + ".top", String.valueOf(page + 1), String.valueOf(max + 1), String.valueOf(list.size()));
+            String top = this.getCustomMessage("otulist.otu.top", String.valueOf(page + 1), String.valueOf(max + 1), String.valueOf(list.size()));
+            if (type.equals("runa")) {
+                top = this.getCustomMessage("otulist.runa.top", String.valueOf(page + 1), String.valueOf(max + 1), String.valueOf(list.size()));
+            }
 
             StringBuilder msg = new StringBuilder(top + "\n");
             for (int i = (page * 20); i < list.size(); i++) {
@@ -767,10 +767,7 @@ public class MainClass extends PluginBase {
             name = name.toLowerCase();
 
             List<OtuEntry> list = new ArrayList<>();
-
-            List<OtuEntry> entries = this.getOtuList().getEntryList();
-
-            for (OtuEntry e : entries) {
+            for (OtuEntry e : this.getOtuList().getEntryList()) {
                 if (e.getName().startsWith(name)) {
                     list.add(e);
                 }
