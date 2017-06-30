@@ -19,7 +19,7 @@ public class OtupChangeEvent extends OtuPluginEvent {
     }
 
     public CommandSender getSender() {
-        return sender;
+        return this.sender;
     }
 
     public void setSender(CommandSender sender) {
@@ -27,7 +27,7 @@ public class OtupChangeEvent extends OtuPluginEvent {
     }
 
     public Position getFrom() {
-        return from;
+        return this.from;
     }
 
     public void setFrom(Position from) {
@@ -35,7 +35,7 @@ public class OtupChangeEvent extends OtuPluginEvent {
     }
 
     public Position getTo() {
-        return to;
+        return this.to;
     }
 
     public void setTo(Position to) {

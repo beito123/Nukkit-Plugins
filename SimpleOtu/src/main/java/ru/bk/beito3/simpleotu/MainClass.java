@@ -51,6 +51,10 @@ public class MainClass extends PluginBase {
         return this.otulist;
     }
 
+    public OtuEntry getOtuEntry(String name) {
+        return this.getOtuList().getEntry(name);
+    }
+
     public boolean isOtu(String name) {
         return this.getOtuList().exists(name) && this.getOtuList().isOtu(name);
 
@@ -192,6 +196,7 @@ public class MainClass extends PluginBase {
         }
 
         this.saveResource("messages.properties");
+        this.saveResource("messages-en.properties");
 
         //load config
         Config config = new Config(new File(this.getDataFolder(), "config.yml"), Config.YAML);
@@ -503,7 +508,7 @@ public class MainClass extends PluginBase {
                 this.updateActivePlayers();
             } else if (!this.isEnableUnotu()) {
                 OtuRemoveEvent ev;
-                Server.getInstance().getPluginManager().callEvent(ev = new OtuRemoveEvent(this, this.getOtuList().getEntry(name)));
+                Server.getInstance().getPluginManager().callEvent(ev = new OtuRemoveEvent(this, this.getOtuEntry(name)));
                 if (ev.isCancelled()) {
                     this.sendCustomMessage(sender, "command.event.cancel");
 
@@ -600,7 +605,7 @@ public class MainClass extends PluginBase {
             }
 
             if (!this.isRuna(name)) {
-                OtuEntry entry = this.getOtuList().getEntry(name);
+                OtuEntry entry = this.getOtuEntry(name);
                 if (entry != null) {
                     entry = new OtuEntry(name, OtuList.MODE_OTU_AND_RUNA, OffsetDateTime.now(), sender.getName());
                 } else {
@@ -629,7 +634,7 @@ public class MainClass extends PluginBase {
                 }
             } else {
                 RunaRemoveEvent ev;
-                Server.getInstance().getPluginManager().callEvent(ev = new RunaRemoveEvent(this, this.getOtuList().getEntry(name)));
+                Server.getInstance().getPluginManager().callEvent(ev = new RunaRemoveEvent(this, this.getOtuEntry(name)));
                 if (ev.isCancelled()) {
                     this.sendCustomMessage(sender, "command.event.cancel");
 
@@ -849,7 +854,22 @@ public class MainClass extends PluginBase {
             String reason = args[lastIndex];
 
             if (this.isOtu(name) || this.isRuna(name)) {//TODO: implements a event
-                this.setReason(name, reason);
+                OtuEntry entry = this.getOtuEntry(name);
+                if (entry == null) {
+                    return true;
+                }
+
+                entry.setReason(reason);
+
+                OturSetEvent ev;
+                Server.getInstance().getPluginManager().callEvent(ev = new OturSetEvent(this, entry, sender));
+                if (ev.isCancelled()) {
+                    this.sendCustomMessage(sender, "command.event.cancel");
+
+                    return true;
+                }
+
+                this.setReason(name, ev.getEntry().getReason());
 
                 this.sendCustomMessage(sender, "otur.set-reason", name, reason);
             } else {
