@@ -1,5 +1,14 @@
 package ru.bk.beito3.simpleotu;
 
+/*
+ * SimpleOtu
+ *
+ * Copyright (c) 2017 beito
+ *
+ * This software is released under the MIT License.
+ * http://opensource.org/licenses/mit-license.php
+*/
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

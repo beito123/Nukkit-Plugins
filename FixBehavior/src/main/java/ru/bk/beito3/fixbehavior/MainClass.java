@@ -1,5 +1,14 @@
 package ru.bk.beito3.fixbehavior;
 
+/*
+ * FixBehavior
+ *
+ * Copyright (c) 2017 beito
+ *
+ * This software is released under the MIT License.
+ * http://opensource.org/licenses/mit-license.php
+*/
+
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.Listener;

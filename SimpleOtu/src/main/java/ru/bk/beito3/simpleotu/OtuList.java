@@ -1,5 +1,14 @@
 package ru.bk.beito3.simpleotu;
 
+/*
+ * SimpleOtu
+ *
+ * Copyright (c) 2017 beito
+ *
+ * This software is released under the MIT License.
+ * http://opensource.org/licenses/mit-license.php
+*/
+
 import cn.nukkit.utils.Logger;
 import cn.nukkit.utils.Utils;
 import com.google.gson.Gson;

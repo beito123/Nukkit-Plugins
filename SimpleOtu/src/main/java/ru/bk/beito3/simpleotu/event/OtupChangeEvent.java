@@ -1,5 +1,14 @@
 package ru.bk.beito3.simpleotu.event;
 
+/**
+ * SimpleOtu
+ * <p>
+ * Copyright (c) 2017 beito
+ * <p>
+ * This software is released under the MIT License.
+ * http://opensource.org/licenses/mit-license.php
+ */
+
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.Plugin;

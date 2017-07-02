@@ -21,24 +21,16 @@ IF you can't download, get download links from the under link.
 [Get download links](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts)
 
 ## License
-These plugins are the under LGPLv3 license.
+These plugins are released under the MIT license.
+(but, if exists LICENSE in the plugin folder, see the LICENSE)
 
-	this program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+About the license, see the LICENSE file or the under link.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
-
-	You should have received a copy of the GNU Lesser General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-	
-
+MIT License
+https://opensource.org/licenses/mit-license.php
 
 **Special thanks**: okuda, Players in a certain server
+
 ## Nukkit-Plugins (JP)
 これらのプラグインはとあるサーバーのために作られたものです。
 
@@ -48,7 +40,7 @@ These plugins are the under LGPLv3 license.
 
 	./gradlew build
 
-## Download (開発版)
+### Download (開発版)
 以下のリンクからダウンロードできます。最新のバージョンがダウンロードされます。
 
 Sit: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts/0/home/workspace/dist/Sit.jar)
@@ -62,20 +54,8 @@ FixBehavior: [Download](https://circleci.com/api/v1.1/project/github/beito123/Nu
 [Get download links](https://circleci.com/api/v1.1/project/github/beito123/Nukkit-Plugins/latest/artifacts)
 
 ### License
-これらのプラグインはLGPLv3ライセンスです。
+これらのプラグインはMITライセンス下にあります。
 
-	this program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
-
-	You should have received a copy of the GNU Lesser General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-	
+MITライセンスについては、以下のURLかLICENSEファイルをご覧ください。
 
 **謝辞**: okudaさん, とあるサーバーのプレーヤーの皆さん
