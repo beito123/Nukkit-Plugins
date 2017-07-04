@@ -4,4 +4,5 @@ include 'Sit'
 include 'SimpleOtu'
 include 'TapSign'
 include 'FixBehavior'
+include 'Hanabi'
 
