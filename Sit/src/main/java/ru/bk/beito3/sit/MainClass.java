@@ -23,12 +23,13 @@ import cn.nukkit.event.entity.EntityDespawnEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.math.Vector3f;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.DoubleTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
-import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.PlayerActionPacket;
+import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
 
@@ -44,8 +45,6 @@ public class MainClass extends PluginBase implements Listener {
 
     private boolean decodeMode = false;
 
-    private final static byte PLAYER_ACTION_PACKET_ID = 0x24;
-
     @Override
     public void onEnable() {
         //Fix description and parameters of the command
@@ -56,11 +55,6 @@ public class MainClass extends PluginBase implements Listener {
 
         //Register a entity
         Entity.registerEntity("Chair", Chair.class, true);
-
-        DataPacket pk = this.getServer().getNetwork().getPacket(PLAYER_ACTION_PACKET_ID);
-        if (!(pk instanceof PlayerActionPacket)) {
-            this.decodeMode = true;
-        }
 
         //Register event listener
         this.getServer().getPluginManager().registerEvents(this, this);
@@ -119,23 +113,10 @@ public class MainClass extends PluginBase implements Listener {
 
     @EventHandler
     public void onActionPacket(DataPacketReceiveEvent event) {
-        if (event.getPacket().pid() == PLAYER_ACTION_PACKET_ID) {//PlayerActionPacket for 1.1.0
-            //decode
-            PlayerActionPacket pk;
-            if (this.decodeMode) {
-                pk = new PlayerActionPacket();
-                pk.setBuffer(event.getPacket().getBuffer());
-                pk.setOffset(1);//skip id
-                pk.decode();
-            } else {
-                pk = (PlayerActionPacket) event.getPacket();
-            }
-
-            //Server.getInstance().getLogger().debug("action:" + pk.action + " entiryid:" + event.getPlayer().getId());
-            //Server.getInstance().getLogger().debug("packet:" + Binary.bytesToHexString(pk.getBuffer(), true));
-
-            //PlayerActionPacket pk = (PlayerActionPacket) event.getPacket();
+        if (event.getPacket().pid() == ProtocolInfo.PLAYER_ACTION_PACKET) {
+            PlayerActionPacket pk = (PlayerActionPacket) event.getPacket();
             Player player = event.getPlayer();
+            Server.getInstance().getLogger().debug("jagajaga: action:" + pk.action);
 
             if (pk.action == PlayerActionPacket.ACTION_JUMP) {
                 if (player.getLinkedEntity() instanceof Chair) {
@@ -143,18 +124,6 @@ public class MainClass extends PluginBase implements Listener {
                 }
             }
         }
-
-        /*
-        if (event.getPacket().pid() == ProtocolInfo.PLAYER_ACTION_PACKET) {
-            PlayerActionPacket pk = (PlayerActionPacket) event.getPacket();
-            Player player = event.getPlayer();
-
-            if (pk.action == PlayerActionPacket.ACTION_JUMP) {
-                if (player.getLinkedEntity() instanceof Chair) {
-                    this.closeChair(player);
-                }
-            }
-        }*/
     }
 
     @EventHandler
@@ -179,7 +148,7 @@ public class MainClass extends PluginBase implements Listener {
                 double y = player.getY();
                 double z = player.getZ();
 
-                y += 1.2;
+                //y += 1.2;
 
                 this.sitPlayer(player, new Vector3(x, y, z));
 
@@ -192,6 +161,10 @@ public class MainClass extends PluginBase implements Listener {
     }
 
     private void sitPlayer(Player player, Vector3 pos) {
+        sitPlayer(player, pos, null);
+    }
+
+    private void sitPlayer(Player player, Vector3 pos, Vector3f offset) {
         if (!player.isAlive() || player.closed) {
             return;
         }
@@ -221,7 +194,7 @@ public class MainClass extends PluginBase implements Listener {
 
         entity.spawnToAll();
 
-        entity.sitEntity(player);
+        entity.sitEntity(player, offset);
 
         usingChairs.put(player.getName(), entity);
     }
@@ -239,7 +212,7 @@ public class MainClass extends PluginBase implements Listener {
 
         Vector3 pos = new Vector3(x, y, z);
 
-        this.sitPlayer(player, pos);
+        this.sitPlayer(player, pos, new Vector3f(0, 0.5F, 0));
     }
 
     private void closeChair(Player player) {
