@@ -1,5 +1,5 @@
 group 'SimpleOtu'
-version '2.1.1'
+version '2.1.2'
 
 dependencies {
     compile 'com.google.code.gson:gson:2.4'

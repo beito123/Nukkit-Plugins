@@ -1,5 +1,5 @@
 name: SimpleOtu
-version: 2.1.1
+version: 2.1.2
 author: beito
 api: ["1.0.0"]
 main: ru.bk.beito3.simpleotu.MainClass
