@@ -10,10 +10,11 @@ package ru.bk.beito3.simpleotu.event;
  */
 
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.event.Cancellable;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.Plugin;
 
-public class OtupChangeEvent extends OtuPluginEvent {
+public class OtupChangeEvent extends OtuPluginEvent implements Cancellable {
 
     private CommandSender sender;
     private Position from;

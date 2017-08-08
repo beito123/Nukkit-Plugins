@@ -10,10 +10,11 @@ package ru.bk.beito3.simpleotu.event;
 */
 
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.event.Cancellable;
 import cn.nukkit.plugin.Plugin;
 import ru.bk.beito3.simpleotu.OtuEntry;
 
-public class OturSetEvent extends OtuPluginEvent {
+public class OturSetEvent extends OtuPluginEvent implements Cancellable {
 
     private OtuEntry entry;
 
