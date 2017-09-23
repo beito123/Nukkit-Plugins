@@ -1,5 +1,7 @@
 group 'SimpleOtu'
-version '2.1.2'
+version '3.0.0'
+
+mainClassName = "ru.bk.beito3.simpleotu.MainClass"
 
 dependencies {
     compile 'com.google.code.gson:gson:2.4'

@@ -1,20 +1,45 @@
+buildscript {
+    ext.kotlin_version  = '1.1.4-3'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 subprojects {
-    apply plugin: 'java'
+    apply plugin: 'kotlin'
+    //apply plugin: 'java'
+    apply plugin: 'application'
 
     sourceCompatibility = 1.8
 
     jar.archiveName = name + ".jar"
 
     repositories {
-        mavenCentral()
+        maven { url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1' }
         maven {
             url 'http://ci.mengcraft.com:8080/job/Nukkit/lastSuccessfulBuild/maven-repository/repository/'
         }
+        mavenCentral()
+
     }
 
     dependencies {
-        testCompile group: 'junit', name: 'junit', version: '4.12'
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
         compile 'cn.nukkit:nukkit:1.0-SNAPSHOT'
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+    }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
     }
 
     tasks.withType(JavaCompile) {
