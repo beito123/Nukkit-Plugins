@@ -2,7 +2,7 @@ rootProject.name = 'Nukkit-Plugins'
 
 include 'Sit'
 include 'SimpleOtu'
-include 'TapSign'
 include 'FixBehavior'
+include 'FlowerPot'
+include 'Moti'
 include 'Hanabi'
-

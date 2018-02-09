@@ -1,0 +1,31 @@
+name: Hanabi
+version: 1.0.0
+author: beito
+api: ["1.0.0"]
+main: ru.bk.beito3.hanabi.MainClass
+
+commands:
+  hana:
+    description: "Launch the Hana!"
+    usage: "/hana <name> [pos name]"
+    permission: hana.command.hana
+  hanac:
+    description: "Makes a Hana."
+    usage: "/hanac <mode|make|skin|del|help>"
+    permission: hana.command.hanac
+  hanap:
+    description: "Sets position to launch!"
+    usage: "/hanap <add|del|set|help>"
+    permission: hana.command.hanap
+
+permissions:
+  hana:
+    children:
+      hana.command:
+        children:
+          hana.command.hana:
+            default: op
+          hana.command.hanac:
+            default: op
+          hana.command.hanap:
+            default: op
