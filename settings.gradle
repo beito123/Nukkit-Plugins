@@ -2,7 +2,6 @@ rootProject.name = 'Nukkit-Plugins'
 
 include 'Sit'
 include 'SimpleOtu'
-include 'FixBehavior'
 include 'FlowerPot'
 include 'Moti'
 include 'Hanabi'
