@@ -1,3 +1,5 @@
+# Moved [Nukkit-Plugins-sub](https://github.com/beito123/Nukkit-Plugins-sub)
+
 # Nukkit-Plugins
 These plugins are made for a certain server.
 
